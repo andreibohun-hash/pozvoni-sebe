@@ -20,8 +20,8 @@
   --tile:#ece6da; --tile2:#c99a5a; --juice:#c9781f;
   --wood:#2a1d15; --wood2:#4a3424; --box:#b08a5a; --book:#7a2e2e; --slipper:#8f6bb0;
   --lego:#d8342c; --cable:#18181c; --remote:#2b2d33; --metal:#d4d9e0; --trap:#c8a46a; --cheese:#ffd23f;
-  --phone:#16171c; --screen:#8fd0ff; --skin:#e8b48f; --skin2:#d39a76; --sleeve:#3b5b8a;
-  --coin:#f2c14e; --dust:#8a8178; --good:#7be08a; --bad:#ff6b6b;
+  --phone:#16171c; --screen:#8fd0ff; --screen2:#3f8fe0; --skin:#e8b48f; --skin2:#d39a76; --sleeve:#3b5b8a;
+  --coin:#f2c14e; --dust:#8a8178; --good:#7be08a; --bad:#ff6b6b; --warm:#ffd79a;
 }
 @media (prefers-color-scheme: light){
   :root{ --bg:#e9ebf0; --frame:#ffffff; --ink:#1a1c22; --muted:#5d636f; --off:#d5d9e2; }
@@ -31,15 +31,23 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1
   overflow:hidden;overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 #frame{position:relative;width:min(100vw,var(--frame-w));height:100dvh;height:100svh;margin:0 auto;background:var(--frame);
   display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-header{display:flex;gap:10px;align-items:center;padding:10px 14px;pointer-events:none}
-header b{font-size:17px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-header span{color:var(--muted);white-space:nowrap}
-header button{pointer-events:auto;padding:6px 10px}
-.bat{display:inline-block;width:30px;height:15px;border:2px solid var(--ink);border-radius:4px;position:relative;margin-right:6px;vertical-align:-2px}
-.bat:after{content:'';position:absolute;right:-5px;top:3px;width:3px;height:5px;background:var(--ink);border-radius:0 2px 2px 0}
-.bat i{position:absolute;left:1px;top:1px;bottom:1px;width:50%;background:var(--on);border-radius:2px}
-.bat.low i{background:var(--danger)}
+header{display:flex;gap:8px;align-items:center;padding:8px 10px;pointer-events:none}
+header b{font-size:16px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{pointer-events:auto;flex:none;width:38px;height:38px;padding:0;border-radius:12px;font-size:18px;display:flex;align-items:center;justify-content:center}
+/* Батарейка — деления: одно деление = один прыжок. next мигает во время прицела (сгорит при отпускании). */
+.cells{display:inline-flex;gap:2px;padding:2px;border:2px solid var(--ink);border-radius:5px;position:relative;margin-right:6px;flex:none}
+.cells:after{content:'';position:absolute;right:-6px;top:50%;margin-top:-3px;width:3px;height:6px;background:var(--ink);border-radius:0 2px 2px 0}
+.cells i{display:block;width:6px;height:13px;border-radius:2px;background:var(--on)}
+.cells i.off{background:transparent;box-shadow:inset 0 0 0 1px rgba(150,150,160,.35)}
+.cells.low{border-color:var(--danger)} .cells.low i{background:var(--danger)} .cells.low i.off{background:transparent}
+.cells i.next{animation:blink .45s steps(2) infinite}
+.cells i.spend{animation:spend .4s ease-out}
+@keyframes blink{from{opacity:1}to{opacity:.25}}
+@keyframes spend{from{transform:scale(2);background:#fff}to{transform:scale(1)}}
+#hud-coins{flex:none;font-weight:700}
 #hud-coins:before{content:'';display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--coin);margin-right:5px;vertical-align:-1px;border:2px solid #c9952a}
+#hud-coins.pop{animation:cpop .35s ease-out}
+@keyframes cpop{from{transform:scale(1.5)}to{transform:scale(1)}}
 #game{flex:1;position:relative;touch-action:none;overflow:hidden;background:var(--void)}
 #game canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #notif{position:absolute;left:12px;right:12px;top:8px;display:flex;gap:10px;align-items:center;background:rgba(36,38,46,.94);color:#f2f3f7;
@@ -47,40 +55,53 @@ header button{pointer-events:auto;padding:6px 10px}
 #notif.hide{opacity:0;transform:translateY(-10px)}
 #notif .ic{width:28px;height:28px;border-radius:8px;background:#3fbf5f;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
 #notif b{display:block;font-size:13px} #notif span{color:#c7ccd6}
-#hint{position:absolute;left:16px;right:16px;top:62px;text-align:center;color:#fff;font-size:15px;line-height:1.35;text-shadow:0 1px 3px #000,0 0 8px #000;pointer-events:none}
-footer{display:flex;gap:8px;justify-content:center;padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+#hint{position:absolute;left:16px;right:16px;top:62px;text-align:center;color:#fff;font-size:17px;font-weight:600;line-height:1.3;
+  text-shadow:0 1px 3px #000,0 0 10px #000;pointer-events:none}
+#hint.go{color:var(--good);font-size:30px;font-weight:800;letter-spacing:.5px;animation:go .38s ease-in-out infinite alternate}
+@keyframes go{from{transform:scale(1)}to{transform:scale(1.1)}}
 button{font:inherit;color:var(--ink);background:var(--off);border:0;border-radius:12px;padding:10px 16px;cursor:pointer}
 button.primary{background:var(--accent);color:#1a1c22;font-weight:700}
 #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:20px}
 #overlay.show{display:flex}
-.card{background:var(--frame);border-radius:18px;padding:22px;max-width:350px;width:100%;text-align:center;
-  animation:pop .18s ease-out} /* стартует с видимого состояния, не с opacity:0 (§9) */
-@keyframes pop{from{transform:scale(.96)}to{transform:scale(1)}}
-.card h2{margin:0 0 8px} .card p{color:var(--muted);margin:0 0 14px} .card p.small{font-size:14px}
-.stars{font-size:30px;color:var(--accent);letter-spacing:4px;margin:-2px 0 8px}
-.lv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.card{background:var(--frame);border-radius:20px;padding:22px;max-width:350px;width:100%;text-align:center;
+  animation:pop .22s cubic-bezier(.2,1.4,.4,1)} /* стартует с видимого состояния, не с opacity:0 (§9) */
+@keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
+.card h2{margin:0 0 8px;font-size:26px} .card p{color:var(--muted);margin:0 0 14px} .card p.small{font-size:14px}
+.card .big{font-size:18px;padding:14px 26px}
+.logo{font-size:54px;line-height:1;margin:-4px 0 8px;display:inline-block;animation:wobble 1.6s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.stars{font-size:40px;color:var(--accent);letter-spacing:6px;margin:0 0 10px}
+.stars span{display:inline-block;animation:star .45s cubic-bezier(.2,1.6,.4,1) backwards}
+.stars span.no{color:var(--off)}
+@keyframes star{from{transform:scale(2.6) rotate(-40deg)}to{transform:scale(1) rotate(0)}}
+.lv{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
 .lv button{padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:2px}
-.lv small{font-size:11px;color:var(--accent);min-height:13px}
+.lv small{font-size:10px;color:var(--accent);min-height:12px;letter-spacing:-1px}
+.steps{text-align:left;margin:4px 0 16px;display:grid;gap:10px}
+.steps div{display:flex;gap:12px;align-items:center;color:var(--ink);font-size:15px}
+.steps i{font-style:normal;font-size:26px;flex:none;width:36px;text-align:center}
+.tip{background:var(--off);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink);margin:0 0 14px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0;text-align:left}
 .row button{min-width:150px}
-#toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--off);padding:8px 14px;border-radius:10px;
+#toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:var(--off);padding:8px 14px;border-radius:10px;
   pointer-events:none;opacity:.98;transition:opacity .25s}
 #toast.hide{opacity:0}
-@media (prefers-reduced-motion: reduce){ .card{animation:none} #toast,#notif{transition:none} }
+@media (prefers-reduced-motion: reduce){ .card,.logo,.stars span,#hint.go,.cells i.next,.cells i.spend,#hud-coins.pop{animation:none} #toast,#notif{transition:none} }
 </style>
 </head>
 <body>
 <div id="frame">
-  <header><b id="hud-level">Уровень 1</b><span><span class="bat" id="hud-bat"><i></i></span><span id="hud-pct">50%</span></span><span id="hud-coins">0/0</span><button id="btn-mute" aria-label="звук">🔊</button></header>
+  <header>
+    <button class="ib" id="btn-menu" aria-label="меню">☰</button>
+    <b id="hud-level">Позвони себе</b>
+    <span class="cells" id="hud-cells"></span>
+    <span id="hud-coins">0/0</span>
+    <button class="ib" id="btn-reset" aria-label="заново">↺</button>
+  </header>
   <div id="game"><canvas id="cv"></canvas>
     <div id="notif" class="hide"><span class="ic" id="notif-ic">Я</span><div><b id="notif-from"></b><span id="notif-text"></span></div></div>
     <div id="hint"></div>
   </div>
-  <footer>
-    <button id="btn-reset">Заново</button>
-    <button id="btn-menu">Меню</button>
-    <button id="btn-dev">Настройки</button>
-  </footer>
   <div id="overlay"><div class="card" id="card"></div></div>
   <div id="toast" class="hide"></div>
 </div>
@@ -124,12 +145,32 @@ const CFG = {
   NOISE_DEG: 6,          // ошибка прицеливания бота-новичка, ° (равномерно ±)
   VIEW: {                // оболочка; симулятор это не читает
     BAND: 44,            // видимая полоса комнаты под краем дивана, юн
-    FOG: 0.62,           // плотность темноты под диваном (0 — светло)
-    LIGHT_R: 150,        // радиус света от экрана при полном заряде, юн
-    EDGE_LIGHT: 120,     // насколько глубоко под диван заходит свет из комнаты, юн
-    GRAB_MS: 1200,       // анимация «рука хватает и вытаскивает», мс
-    TRAP_MS: 1000,       // пауза после мышеловки до экрана проигрыша, мс
-    DEAD_MS: 1300,       // экран гаснет после разряда, мс
+    FOG: 0.5,            // плотность темноты под диваном (0 — светло)
+    LIGHT_R: 175,        // радиус света от экрана при полном заряде, юн
+    EDGE_LIGHT: 130,     // насколько глубоко под диван заходит свет из комнаты, юн
+    PHONE_DL: 46,        // длина нарисованного телефона, юн (столкновения — по R)
+    PHONE_DW: 26,        // ширина нарисованного телефона, юн
+    TAP_MS: 160,         // отпустил быстрее — прыжок прямо, без поворота (тап = «прыгни, куда смотришь»)
+    TICK_DEG: 10,        // шаг «трещотки» при повороте: щелчок звука и вибро каждые столько градусов
+    STICKY: 0.3,         // во сколько раз замедляется поворот, пока путь зелёный (рука поймает)
+    COYOTE_MS: 150,      // отпустил чуть позже, чем путь перестал быть зелёным, — прыжок в середину зелёного окна
+    HITSTOP_P: 0.45,     // удар сильнее этой доли стартовой скорости замирает на HITSTOP_MS
+    HITSTOP_MS: 55,      // стоп-кадр на сильном ударе, мс
+    TRAP_STOP_MS: 160,   // стоп-кадр на мышеловке, мс
+    SLOWMO: 0.35,        // замедление на подлёте к руке или к мышеловке (доля скорости)
+    SLOW_DIST: 70,       // за сколько юн до конца такого прыжка включается замедление
+    LIFT_MS: 260,        // «подпрыгнул»: телефон приподнимается над полом после отпускания, мс
+    SQUASH_MS: 140,      // сплющивание от удара, мс
+    SETTLE_MS: 450,      // покачивание после остановки, мс
+    RING_MS: 1700,       // входящий вызов в начале уровня: волны от телефона, мс
+    TAG_FADE_MS: 1500,   // подписи «ковёр: тормозит» гаснут через столько после первого прыжка, мс
+    CAM_K: 6,            // скорость камеры к цели (экспонента), 1/с
+    WIN_ZOOM: 1.45,      // наезд камеры на руку при победе
+    LOSE_ZOOM: 1.3,      // наезд камеры на телефон при проигрыше
+    SLOW_ZOOM: 1.15,     // лёгкий наезд на подлёте
+    GRAB_MS: 1300,       // анимация «рука хватает и вытаскивает», мс
+    TRAP_MS: 1100,       // пауза после мышеловки до экрана проигрыша, мс
+    DEAD_MS: 1500,       // экран гаснет после разряда, мс
     NOTIF_MS: 2600,      // сколько висит уведомление, мс
     HAND_SWAY: 0.8,      // как быстро рука шарит по проёму, рад/с
     AUTO_GAP_MS: 400,    // пауза между прыжками автоигры, мс
@@ -152,18 +193,26 @@ function mulberry32(seed){
 // (0° — вправо, 90° — вниз, к свету). solids: box {x,y,w,h,r} или post {x,y,rad}; surfs: s — физика,
 // kind — рисунок, shape 'rect' | 'oval'; traps — мышеловки; goal — проём [x0, x1] у нижнего края.
 // par — минимум прыжков по солверу (sim.mjs audit сверяет), battery — стартовый заряд, %.
+// lesson — обучающий уровень: оболочка ведёт подсказками по шагам (1 — держи/отпусти, 2 — палец слева).
 const LEVELS = [
-  { n: 1, name: 'Урок', par: 2, battery: 50, start: { x: 200, y: 340, a: 0 }, goal: [130, 270], sideHint: true,
-    hint: ['Зажми палец справа — телефон зажужжит и повернётся', 'Отпусти, когда верх смотрит на свет'],
+  { n: 1, name: 'Урок', lesson: 1, par: 1, battery: 30, start: { x: 200, y: 490, a: 0 }, goal: [120, 280],
     solids: [
-      { k: 'box', kind: 'slipper', x: 80, y: 170, w: 90, h: 40, r: 70 },
-      { k: 'box', kind: 'book', x: 318, y: 220, w: 70, h: 96, r: -12 },
       { k: 'post', kind: 'leg', x: 28, y: 28, rad: 14 },
       { k: 'post', kind: 'leg', x: 372, y: 28, rad: 14 },
+      { k: 'box', kind: 'slipper', x: 90, y: 230, w: 90, h: 40, r: 70 },
+      { k: 'box', kind: 'book', x: 320, y: 260, w: 70, h: 96, r: -12 },
     ],
-    surfs: [], traps: [], coins: [[200, 470]] },
-  { n: 2, name: 'Ковёр', par: 5, battery: 80, start: { x: 90, y: 150, a: 180 }, goal: [250, 370], sideHint: true,
-    hint: 'Палец слева — крутится влево, справа — вправо. Ковёр тормозит',
+    surfs: [], traps: [], coins: [[200, 548]] },
+  { n: 2, name: 'Влево', lesson: 2, par: 2, battery: 40, start: { x: 165, y: 370, a: 180 }, goal: [240, 370],
+    solids: [
+      { k: 'post', kind: 'leg', x: 28, y: 28, rad: 14 },
+      { k: 'post', kind: 'leg', x: 372, y: 28, rad: 14 },
+      { k: 'box', kind: 'book', x: 330, y: 250, w: 70, h: 96, r: 10 },
+      { k: 'box', kind: 'slipper', x: 70, y: 520, w: 90, h: 40, r: -60 },
+    ],
+    surfs: [], traps: [], coins: [[232, 488]] },
+  { n: 3, name: 'Ковёр', par: 5, battery: 80, start: { x: 90, y: 150, a: 180 }, goal: [250, 370],
+    hint: 'По ковру прыжок короче. Иногда это и надо',
     solids: [
       { k: 'post', kind: 'leg', x: 28, y: 28, rad: 14 },
       { k: 'post', kind: 'leg', x: 372, y: 28, rad: 14 },
@@ -171,7 +220,7 @@ const LEVELS = [
     ],
     surfs: [ { s: 'rug', kind: 'rug', x: 165, y: 400, w: 310, h: 200 } ],
     traps: [], coins: [[362, 400], [150, 230]] },
-  { n: 3, name: 'Глянец', par: 3, battery: 60, start: { x: 70, y: 90, a: 90 }, goal: [270, 380],
+  { n: 4, name: 'Глянец', par: 3, battery: 60, start: { x: 70, y: 90, a: 90 }, goal: [270, 380],
     hint: 'Журнал скользкий — прокатишься далеко',
     solids: [
       { k: 'post', kind: 'leg', x: 372, y: 28, rad: 14 },
@@ -183,7 +232,7 @@ const LEVELS = [
       { s: 'rug', kind: 'rug', x: 330, y: 470, w: 140, h: 110 },
     ],
     traps: [], coins: [[230, 380]] },
-  { n: 4, name: 'Рикошет', par: 5, battery: 80, start: { x: 330, y: 100, a: 180 }, goal: [30, 150],
+  { n: 5, name: 'Рикошет', par: 5, battery: 80, start: { x: 330, y: 100, a: 180 }, goal: [30, 150],
     hint: 'Об стенку тоже можно — отскочит и закрутится',
     solids: [
       { k: 'box', kind: 'box', x: 140, y: 290, w: 280, h: 40 },
@@ -191,7 +240,7 @@ const LEVELS = [
       { k: 'post', kind: 'leg', x: 28, y: 28, rad: 14 },
     ],
     surfs: [], traps: [], coins: [[355, 380], [60, 540]] },
-  { n: 5, name: 'Мышеловка', par: 4, battery: 70, start: { x: 200, y: 90, a: 90 }, goal: [140, 260],
+  { n: 6, name: 'Мышеловка', par: 4, battery: 70, start: { x: 200, y: 90, a: 90 }, goal: [140, 260],
     hint: 'Мышеловка. Сыр не для тебя',
     solids: [
       { k: 'post', kind: 'leg', x: 64, y: 330, rad: 16 },
@@ -203,7 +252,7 @@ const LEVELS = [
     ],
     traps: [ { x: 200, y: 330, w: 56, h: 100 } ],
     coins: [[124, 330], [276, 330]] },
-  { n: 6, name: 'Сок', par: 3, battery: 60, start: { x: 340, y: 470, a: 270 }, goal: [30, 150],
+  { n: 7, name: 'Сок', par: 3, battery: 60, start: { x: 340, y: 470, a: 270 }, goal: [30, 150],
     hint: 'Пролитый сок. Увязнешь',
     solids: [
       { k: 'box', kind: 'slipper', x: 250, y: 290, w: 90, h: 40, r: -25 },
@@ -213,7 +262,7 @@ const LEVELS = [
     ],
     surfs: [ { s: 'sticky', kind: 'juice', shape: 'oval', x: 215, y: 565, w: 230, h: 140 } ],
     traps: [], coins: [[200, 420], [40, 470]] },
-  { n: 7, name: 'Барахло', par: 5, battery: 80, start: { x: 60, y: 80, a: 0 }, goal: [250, 380],
+  { n: 8, name: 'Барахло', par: 5, battery: 80, start: { x: 60, y: 80, a: 0 }, goal: [250, 380],
     hint: 'Провод цепляет, лего больно',
     solids: [
       { k: 'box', kind: 'cable', x: 190, y: 210, w: 280, h: 10, r: 28 },
@@ -227,7 +276,7 @@ const LEVELS = [
       { s: 'rug', kind: 'sock', shape: 'oval', x: 350, y: 410, w: 80, h: 40, r: -40 },
     ],
     traps: [], coins: [[300, 140], [140, 410], [340, 520]] },
-  { n: 8, name: 'Генеральная', par: 5, battery: 70, start: { x: 340, y: 70, a: 180 }, goal: [40, 160],
+  { n: 9, name: 'Генеральная', par: 5, battery: 70, start: { x: 340, y: 70, a: 180 }, goal: [40, 160],
     hint: 'Всё сразу. Как в жизни',
     solids: [
       { k: 'box', kind: 'box', x: 230, y: 210, w: 240, h: 44, r: -4 },
@@ -319,7 +368,7 @@ function collide(s, sh){
   s.vx = tx * CFG.WALL_SLIDE - vn * CFG.RESTITUTION * nx;
   s.vy = ty * CFG.WALL_SLIDE - vn * CFG.RESTITUTION * ny;
   s.w += CFG.BOUNCE_SPIN * cross / hopV0();
-  if (-vn > 30) s.ev.push({ k: 'bounce', x: s.x - nx * CFG.R, y: s.y - ny * CFG.R, p: Math.min(1, -vn / hopV0()), kind: sh.kind });
+  if (-vn > 30) s.ev.push({ k: 'bounce', x: s.x - nx * CFG.R, y: s.y - ny * CFG.R, p: Math.min(1, -vn / hopV0()), kind: sh.kind, o: sh });
 }
 
 // Состояние: status idle | move | win | lose; cause — trap | battery. ev — события для оболочки (звук, эффекты).
@@ -361,16 +410,20 @@ function stepMove(s){
   }
 }
 // Честная симуляция прыжка тем же ядром (§10): превью, солвер и боты. path (необязательно) получает
-// точки траектории pts [x0,y0,x1,y1,…] и firstHit — индекс в pts на первом ударе (-1 — без ударов).
+// точки траектории pts [x0,y0,x1,y1,…], firstHit — индекс в pts на первом ударе (-1 — без ударов)
+// и hits [x0,y0,…] — точки касания всех ударов.
 function simulateHop(s, angle, path){
   const n = cloneState(s); n.a = angle;
-  if (path){ path.pts = [n.x, n.y]; path.firstHit = -1; }
+  if (path){ path.pts = [n.x, n.y]; path.firstHit = -1; path.hits = []; }
   if (!release(n)) return n;
   let k = 0;
   while (n.status === 'move' && k < 6000){
-    stepMove(n); k++;
+    const ne = n.ev.length; stepMove(n); k++;
     if (path){
-      if (path.firstHit < 0 && n.ev.some(e => e.k === 'bounce')) path.firstHit = path.pts.length;
+      for (let j = ne; j < n.ev.length; j++) if (n.ev[j].k === 'bounce'){
+        if (path.firstHit < 0) path.firstHit = path.pts.length;
+        path.hits.push(n.ev[j].x, n.ev[j].y);
+      }
       if (k % 3 === 0) path.pts.push(n.x, n.y);
     }
   }
@@ -511,8 +564,11 @@ function randomRun(li, seed){
 
 // ---------------------------------------------------------------------------
 // Оболочка: экраны, ввод, рендер, звук, сейв, дебаг-хук. Время абсолютное (§4).
+// Отклик на каждое состояние: держишь — трещотка и дрожь, путь зелёный — «дзынь» и поворот вязнет,
+// отпустил — подскок и пыль, удар — стоп-кадр, вспышка предмета и тряска, подлёт к руке — замедление и наезд камеры.
 // ---------------------------------------------------------------------------
 const NAME = 'pozvoni-sebe';
+const FW = CFG.FIELD_W, FH = CFG.FIELD_H, V = CFG.VIEW;
 let skew = 0;                              // сдвиг часов: drive(sec) прокручивает игровое время без ожидания
 const clock = () => performance.now() + skew;
 const T0 = clock();
@@ -524,28 +580,38 @@ const SAVE_KEY = NAME + '.v1';
 function loadSave(){ try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) { return {}; } }
 function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(G.save)); } catch (e) {} }
 
-const DEV_DEFAULT = { preview: 'full', fog: true, side: true, haptics: true };   // настройки плейтеста (экран «Настройки»)
+const DEV_DEFAULT = { preview: 'full', fog: true, side: true, haptics: true, sticky: true };   // настройки плейтеста (экран «Настройки»)
 const G = {
   s: null,                       // состояние ядра
   screen: 'menu',                // menu | game | win | lose | help | dev
   save: Object.assign({ level: 0, muted: false, best: {}, coins: {} }, loadSave()),
-  aim: null,                     // удержание { start, a0, dir, reb } — угол считается от абсолютного времени
-  preview: null,                 // { a, pts, firstHit, end } — честная симуляция прыжка тем же ядром
+  aim: null,                     // удержание { start, last, a0, dir, ang, tick, green, k, lockAt } — см. updateAim
+  preview: null,                 // { a, pts, firstHit, hits, end, got } — честная симуляция прыжка тем же ядром
+  flight: null,                  // чем кончится текущий прыжок (та же симуляция в момент отпускания): x, y, t, status, cause
   acc: 0, lastPhys: 0,           // аккумулятор фиксированного шага физики
   fx: [],                        // частицы и надписи { k, x, y, born, life, … } — времена в clock()
-  hand: { mode: 'idle', t0: 0, fx: 0, fy: 0 }, handX: 0, handY: 0,
+  hits: [],                      // вспышки контура задетых предметов { o, born }
+  trail: [],                     // след телефона на скорости { x, y, a, t }
+  tags: [], tagsUntil: Infinity, // подписи новых поверхностей и мышеловок; гаснут после первого прыжка
+  hand: { mode: 'idle', t0: 0, fx: 0, fy: 0, cs: 0.2, last: 0 }, handX: FW / 2, handY: FH,
+  cam: { z: 1, x: FW / 2, y: (FH + V.BAND) / 2 }, camT: 0, mat: { k: 1, ox: 0, oy: 0 },
   ending: 0,                     // когда показать win/lose (после анимации), 0 = не ждём
-  deadAt: 0, lowWarned: false, hintStage: 0,
-  shakeUntil: 0, shakeMs: 1, shakeAmp: 0,
+  deadAt: 0, lowWarned: false, firstHop: false, hintT: null, hintC: null,
+  shakeUntil: 0, shakeMs: 1, shakeAmp: 0, hitStopUntil: 0, slow: false,
+  flash: null,                   // { until, ms, color, a } — вспышка поверх всего экрана
+  liftAt: -1e9, squashAt: -1e9, settleAt: -1e9, ringAt: -1e9, ringLogged: true,
+  dripUntil: 0, dripX: 0, dripY: 0, combo: 0, coinPopAt: 0,
+  touch: null,                   // { x, y, dir } — где палец, в пикселях канваса (кольцо и стрелка под пальцем)
   notifUntil: 0, toastUntil: 0,
   autoQ: null, autoAt: 0,        // автоигра по решению солвера
   lastWin: null, devFrom: 'menu',
-  timeScale: 1, paused: false,
+  timeScale: 1, paused: false, errLogged: false,
 };
 G.save.dev = Object.assign({}, DEV_DEFAULT, G.save.dev || {});
 
 const WIN_LINES = [
   'Хозяин: «О, вот ты где». И сразу открыл ленту.',
+  'Хозяин: «Ага!» Как будто это он молодец.',
   'Тебя вытащили, протёрли о штаны и положили экраном вниз.',
   '«Кто его туда закинул?» Ты знаешь кто.',
   'Тебя вытащили вместе с носком. Носок рад больше.',
@@ -554,10 +620,15 @@ const WIN_LINES = [
   'Нашёлся. А заодно пульт, три лего и чек за 2019 год.',
   'Хозяин решил пропылесосить под диваном. Через год.',
 ];
-const LOSE_TRAP = ['Щёлк.', 'Мышей под диваном нет. Теперь и телефона.'];
-const LOSE_BAT = ['Сел.', 'Тебя нашли через неделю, когда двигали диван. Рядом лежал пульт.'];
+const LOSE_TRAP = ['Щёлк.', 'Мышей под диваном нет. Теперь и телефона.', 'Красный путь — это мышеловка. Отпускай, когда он белый или зелёный.'];
+const LOSE_BAT = ['Сел.', 'Тебя нашли через неделю, когда двигали диван. Рядом лежал пульт.', 'Одно деление батарейки — один прыжок. Ищи путь короче: ковёр съедает прыжок, журнал дарит.'];
 const MSGS = [['Мама', 'Ты где? Почему не берёшь'], ['Курьер', 'Я у двери, не могу дозвониться'], ['Я', 'Звоню себе уже пятый раз'],
   ['Банк', 'Ваш код: 4021. Никому не сообщайте'], ['Напоминание', 'Найти телефон'], ['Чат «Дом»', 'Кто брал зарядку?'], ['Мама', 'Перезвони']];
+// Подписи к тому, что впервые встречается на уровне: что это и что делает.
+const TAG_TEXT = { rug: 'Ковёр: тормозит', sock: 'Носок: тормозит', magazine: 'Журнал: скользко', juice: 'Сок: липнет', trap: 'Мышеловка!' };
+const FIRST_SEEN = (() => { const m = {};
+  LEVELS.forEach((L, i) => { for (const sh of L.surfs) if (!(sh.kind in m)) m[sh.kind] = i; if (L.traps.length && !('trap' in m)) m.trap = i; });
+  return m; })();
 
 // --- звук: WebAudio-синтез без файлов, ленивый старт по первому жесту (§8) ---
 const Audio = {
@@ -571,16 +642,20 @@ const Audio = {
       const d = this.noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = rnd() * 2 - 1;
     } catch (e) { this.ac = null; }
   },
-  tone(freq, ms, type, vol, delay){
+  // Нота: осциллятор с огибающей; lp — глушитель (звук «из-под дивана»), f1 — скольжение частоты к концу.
+  tone(freq, ms, type, vol, delay, lp, f1){
     if (G.save.muted || !this.ac) return;
-    const o = this.ac.createOscillator(), g = this.ac.createGain(), t = this.ac.currentTime + (delay || 0);
-    o.type = type || 'sine'; o.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
-    o.connect(g).connect(this.ac.destination); o.start(t); o.stop(t + ms / 1000 + 0.02);
+    const ac = this.ac, o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + (delay || 0);
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + ms / 1000);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+    let out = o.connect(g);
+    if (lp){ const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; out = out.connect(f); }
+    out.connect(ac.destination); o.start(t); o.stop(t + ms / 1000 + 0.03);
   },
-  noise(ms, freq, q, vol, type){
+  noise(ms, freq, q, vol, type, delay){
     if (G.save.muted || !this.ac) return;
-    const ac = this.ac, src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(), t = ac.currentTime;
+    const ac = this.ac, src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(), t = ac.currentTime + (delay || 0);
     src.buffer = this.noiseBuf; f.type = type || 'lowpass'; f.frequency.value = freq; f.Q.value = q || 1;
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
     src.connect(f).connect(g).connect(ac.destination); src.start(t); src.stop(t + ms / 1000 + 0.02);
@@ -597,27 +672,53 @@ const Audio = {
       lp.type = 'lowpass'; lp.frequency.value = 520; lfo.frequency.value = 31; lfoG.gain.value = 0.5; am.gain.value = 0.5;
       lfo.connect(lfoG).connect(am.gain); o1.connect(lp); o2.connect(lp); lp.connect(am).connect(out).connect(ac.destination);
       out.gain.value = 0.0001; o1.start(); o2.start(); lfo.start();
-      this.motor = { o1, out, level: 0 };
+      this.motor = { o1, lfo, out, level: 0 };
     }
     const lv = on ? level : 0; if (Math.abs(lv - this.motor.level) < 0.03) return;
     const t = this.ac.currentTime; this.motor.level = lv;
     this.motor.out.gain.setTargetAtTime(Math.max(0.0001, 0.09 * lv), t, 0.03);
-    this.motor.o1.frequency.setTargetAtTime(96 + 34 * lv, t, 0.05);
+    this.motor.o1.frequency.setTargetAtTime(92 + 44 * lv, t, 0.05);
+    this.motor.lfo.frequency.setTargetAtTime(24 + 16 * lv, t, 0.05);
   },
-  thud(p){ this.noise(70, 700, 1, 0.2 + 0.35 * p); this.tone(150, 90, 'sine', 0.15 + 0.2 * p); log('sound', 'thud'); },
-  coin(){ this.tone(1760, 140, 'sine', 0.16); this.tone(2637, 240, 'sine', 0.14, 0.06); log('sound', 'coin'); },
-  rug(){ this.noise(180, 2200, 0.7, 0.14, 'bandpass'); log('sound', 'rug'); },
-  tile(){ this.tone(1300, 160, 'triangle', 0.07); this.tone(1700, 120, 'triangle', 0.05, 0.05); log('sound', 'tile'); },
-  sticky(){ this.noise(140, 380, 4, 0.3, 'bandpass'); this.tone(85, 180, 'sine', 0.16); log('sound', 'sticky'); },
-  snap(){ this.noise(90, 3000, 0.5, 0.6, 'highpass'); this.tone(80, 260, 'square', 0.22); log('sound', 'snap'); },
-  grab(){ this.noise(240, 900, 0.8, 0.14, 'bandpass'); [880, 1175, 1568].forEach((f, i) => this.tone(f, 200, 'sine', 0.15, 0.3 + i * 0.09)); log('sound', 'grab'); },
-  dead(){ [440, 330, 220].forEach((f, i) => this.tone(f, 220, 'square', 0.08, i * 0.2)); log('sound', 'dead'); },
+  tick(k){ this.tone(1400 + 1000 * k, 18, 'square', 0.028); },                       // трещотка поворота, выше на разгоне
+  lock(){ this.tone(1568, 90, 'sine', 0.13); this.tone(2349, 200, 'sine', 0.12, 0.06); log('sound', 'lock'); },
+  unlock(){ this.tone(520, 70, 'triangle', 0.06); },
+  launch(){ this.noise(240, 1100, 0.8, 0.2, 'bandpass'); this.tone(80, 140, 'square', 0.07, 0, 600, 170); log('sound', 'launch'); },
+  land(){ this.noise(70, 500, 1, 0.12); this.tone(240, 60, 'sine', 0.07); },
+  // Удар: у каждого предмета свой голос — дерево, картон, книга, пластик лего, резина провода.
+  hit(kind, p){
+    const H = { leg: [190, 'sine', 900], wall: [140, 'sine', 600], skirt: [150, 'sine', 700], book: [105, 'sine', 450], box: [230, 'triangle', 1500],
+      slipper: [85, 'sine', 300], lego: [1900, 'square', 4500], cable: [110, 'sawtooth', 320], remote: [720, 'square', 2600] }[kind] || [150, 'sine', 700];
+    this.noise(55 + 50 * p, H[2], 1, 0.16 + 0.36 * p); this.tone(H[0], 70 + 70 * p, H[1], 0.09 + 0.18 * p, 0, H[1] === 'square' ? 3000 : 0);
+    log('sound', 'hit', kind);
+  },
+  coin(combo){ const f = 1568 * Math.pow(2, Math.min(combo, 6) / 6); this.tone(f, 120, 'sine', 0.16); this.tone(f * 1.5, 260, 'sine', 0.13, 0.06); log('sound', 'coin'); },
+  rug(){ this.noise(200, 2200, 0.7, 0.15, 'bandpass'); log('sound', 'rug'); },
+  tile(){ this.tone(1300, 180, 'triangle', 0.07, 0, 0, 1900); this.noise(260, 6000, 0.5, 0.06, 'highpass'); log('sound', 'tile'); },
+  sticky(){ this.noise(160, 380, 4, 0.32, 'bandpass'); this.tone(90, 220, 'sine', 0.18, 0, 0, 55); log('sound', 'sticky'); },
+  // Рингтон: короткая фраза; глухо из-под дивана (lowpass), звонко в руке.
+  ring(muffled){
+    const N = [659, 784, 1047, 784, 1319, 1047], lp = muffled ? 1300 : 0;
+    N.forEach((f, i) => { this.tone(f, 150, 'triangle', muffled ? 0.09 : 0.13, i * 0.12, lp); this.tone(f * 2, 90, 'sine', 0.03, i * 0.12, lp); });
+    log('sound', muffled ? 'ring.muffled' : 'ring');
+  },
+  win(){ this.ring(false); [1568, 2093, 2637].forEach((f, i) => this.tone(f, 260, 'sine', 0.08, 0.75 + i * 0.07)); this.noise(500, 7000, 0.6, 0.05, 'highpass', 0.75); log('sound', 'win'); },
+  grab(){ this.noise(260, 900, 0.8, 0.15, 'bandpass'); log('sound', 'grab'); },
+  star(i){ const f = [1047, 1319, 1568][i] || 1568; this.tone(f, 220, 'triangle', 0.15); this.tone(f * 2, 140, 'sine', 0.05); },
+  snap(){ this.noise(90, 3000, 0.5, 0.65, 'highpass'); this.tone(80, 280, 'square', 0.24, 0, 900); log('sound', 'snap'); },
+  dead(){ this.tone(620, 800, 'square', 0.07, 0, 1600, 45); this.tone(310, 800, 'sine', 0.08, 0.05, 0, 30); log('sound', 'dead'); },
+  low(){ this.tone(880, 80, 'square', 0.05, 0, 2500); this.tone(880, 80, 'square', 0.05, 0.15, 2500); log('sound', 'low'); },
   ui(){ this.tone(520, 60, 'triangle', 0.1); },
 };
 // Настоящая вибрация телефона в руке — половина ощущения этой игры (§8). iOS Safari API не даёт.
 function haptic(p){
   if (!G.save.dev.haptics || (navigator.userActivation && !navigator.userActivation.hasBeenActive)) return;   // до первого касания браузер всё равно блокирует
   try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {}
+}
+// Короткий узор (удар, монета), потом жужжание до конца прыжка: вибро продолжает «везти» телефон.
+function buzzRest(prefix){
+  const s = G.s, f = G.flight, rest = s && f && s.status === 'move' ? Math.round((f.t - s.t) * 1000 / G.timeScale) : 0;
+  haptic(rest > 40 ? prefix.concat(rest) : prefix);
 }
 
 // --- экраны: DOM-оверлеи, любой открывается кодом или хешем (§6, §11) ---
@@ -629,28 +730,36 @@ function goto(screen, payload){
   const ov = $('overlay'), card = $('card');
   if (screen === 'game'){ ov.classList.remove('show'); return; }
   ov.classList.add('show');
-  if (screen === 'menu') card.innerHTML = `<h2>Позвони себе</h2><p>Ты — телефон под диваном. Хозяин звонит сам себе. Выползи к его руке, пока не сел.</p>
-      <button class="primary" data-act="play">Играть · ${G.save.level + 1}</button>
+  if (screen === 'menu') card.innerHTML = `<div class="logo">📱</div><h2>Позвони себе</h2>
+      <p>Ты — телефон под диваном. Хозяин звонит сам себе. Доползи до его руки, пока не сел.</p>
+      <button class="primary big" data-act="play">Играть · ${G.save.level + 1}</button>
       <div class="lv">${LEVELS.map((L, i) => `<button data-act="lv" data-i="${i}">${i + 1}<small>${starsOf(i)}</small></button>`).join('')}</div>
-      <button data-act="help">Как играть</button> <button data-act="dev">Настройки</button>`;
-  if (screen === 'help') card.innerHTML = `<h2>Как играть</h2><p>Держи палец — телефон вибрирует и крутится на месте. Палец справа — по часовой, слева — против.</p>
-      <p>Отпусти — прыгнет туда, куда смотрит верх. Пунктир показывает, где остановится.</p>
-      <p>Ковёр тормозит, журнал скользит, сок липнет, об углы закручивает. Каждый прыжок — 10% заряда. Рука ждёт в полосе света.</p>
+      <button data-act="help">Как играть</button> <button data-act="mute">${G.save.muted ? '🔇' : '🔊'}</button> <button data-act="dev">Настройки</button>`;
+  if (screen === 'help') card.innerHTML = `<h2>Как играть</h2><div class="steps">
+      <div><i>👆</i><span><b>Держи палец</b> — телефон жужжит и крутится. Справа — по часовой, слева — против.</span></div>
+      <div><i>💨</i><span><b>Отпусти</b> — прыжок туда, куда смотрят стрелки на экране. Пунктир покажет путь.</span></div>
+      <div><i>✋</i><span><b>Зелёный путь</b> — рука поймает. Красный — мышеловка.</span></div>
+      <div><i>🔋</i><span><b>Одно деление</b> батарейки — один прыжок.</span></div></div>
+      <p class="small">Ковёр тормозит, журнал скользит, сок липнет, об углы закручивает.</p>
       <button class="primary" data-act="menu">Понятно</button>`;
   if (screen === 'win'){
     const p = payload || G.lastWin || { li: 0, stars: 0, hops: 0, par: 0, got: 0, total: 0 }; G.lastWin = p;
-    card.innerHTML = `<h2>Нашёлся!</h2><div class="stars">${'★'.repeat(p.stars)}${'☆'.repeat(3 - p.stars)}</div>
-      <p>${WIN_LINES[p.li % WIN_LINES.length]}</p><p class="small">Прыжков ${p.hops}, лучший путь — ${p.par}. Монет под диваном: ${p.got}/${p.total}</p>
-      <button class="primary" data-act="next">${p.li + 1 < LEVELS.length ? 'Дальше' : 'В меню'}</button> <button data-act="retry">Ещё раз</button>`;
+    const st = [0, 1, 2].map(i => `<span class="${i < p.stars ? '' : 'no'}" style="animation-delay:${0.12 + i * 0.28}s">★</span>`).join('');
+    card.innerHTML = `<h2>Нашёлся!</h2><div class="stars">${st}</div>
+      <p>${WIN_LINES[p.li % WIN_LINES.length]}</p><p class="small">Прыжков ${p.hops} · лучший путь ${p.par} · монет ${p.got}/${p.total}</p>
+      <button class="primary big" data-act="next">${p.li + 1 < LEVELS.length ? 'Дальше' : 'В меню'}</button> <button data-act="retry">Ещё раз</button>`;
+    for (let i = 0; i < p.stars; i++) setTimeout(() => { if (G.screen === 'win'){ Audio.star(i); haptic(20); } }, 120 + i * 280 + 200);
   }
   if (screen === 'lose'){
     const t = G.s && G.s.cause === 'trap' ? LOSE_TRAP : LOSE_BAT;
-    card.innerHTML = `<h2>${t[0]}</h2><p>${t[1]}</p><button class="primary" data-act="retry">Ещё раз</button> <button data-act="menu">Меню</button>`;
+    card.innerHTML = `<h2>${t[0]}</h2><p>${t[1]}</p><div class="tip">${t[2]}</div>
+      <button class="primary big" data-act="retry">Ещё раз</button> <button data-act="menu">Меню</button>`;
   }
   if (screen === 'dev'){
     const d = G.save.dev, PV = { full: 'полное', first: 'до первого удара', off: 'нет' };
     card.innerHTML = `<h2>Настройки теста</h2>
       <div class="row"><span>Превью прыжка</span><button data-act="pv">${PV[d.preview]}</button></div>
+      <div class="row"><span>Липкий прицел</span><button data-act="sticky">${d.sticky ? 'вкл' : 'выкл'}</button></div>
       <div class="row"><span>Темнота</span><button data-act="fog">${d.fog ? 'вкл' : 'выкл'}</button></div>
       <div class="row"><span>Поворот</span><button data-act="side">${d.side ? 'по стороне пальца' : 'всегда по часовой'}</button></div>
       <div class="row"><span>Вибро телефона</span><button data-act="hap">${d.haptics ? 'вкл' : 'выкл'}</button></div>
@@ -667,9 +776,11 @@ $('card').addEventListener('click', (e) => {
   else if (act === 'retry') startLevel(G.s ? G.s.li : G.save.level);
   else if (act === 'next'){ const li = G.lastWin ? G.lastWin.li + 1 : G.save.level; if (li < LEVELS.length) startLevel(li); else goto('menu'); }
   else if (act === 'help') goto('help');
+  else if (act === 'mute'){ G.save.muted = !G.save.muted; save(); Audio.motorSet(0); goto(G.screen); }
   else if (act === 'dev'){ G.devFrom = G.screen; goto('dev'); }
-  else if (['pv', 'fog', 'side', 'hap', 'spd'].includes(act)){
+  else if (['pv', 'sticky', 'fog', 'side', 'hap', 'spd'].includes(act)){
     if (act === 'pv') d.preview = { full: 'first', first: 'off', off: 'full' }[d.preview];
+    if (act === 'sticky') d.sticky = !d.sticky;
     if (act === 'fog') d.fog = !d.fog;
     if (act === 'side') d.side = !d.side;
     if (act === 'hap'){ d.haptics = !d.haptics; if (d.haptics) haptic(40); }
@@ -684,84 +795,169 @@ window.addEventListener('hashchange', () => { const h = location.hash.slice(1); 
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.remove('hide'); G.toastUntil = clock() + 1400; }
 function notify(from, text){                       // баннер уведомления на экране «телефона»
   $('notif-ic').textContent = from[0]; $('notif-from').textContent = from; $('notif-text').textContent = text;
-  $('notif').classList.remove('hide'); G.notifUntil = clock() + CFG.VIEW.NOTIF_MS; log('fx.start', 'notif', from);
+  $('notif').classList.remove('hide'); G.notifUntil = clock() + V.NOTIF_MS; log('fx.start', 'notif', from);
+}
+// Подсказка сверху — от состояния, а не по таймеру. Уроки ведут по шагам; остальные уровни — одна фраза до первого касания.
+function hintText(){
+  const s = G.s; if (!s || G.ending || s.status === 'win' || s.status === 'lose') return ['', ''];
+  const L = s.L, a = G.aim;
+  if (L.lesson && a && a.green) return ['Отпускай!', 'go'];
+  if (L.lesson === 1){
+    if (a) return ['Крутится… Поверни к руке', ''];
+    if (s.status === 'move') return ['', ''];
+    return G.firstHop ? ['Держи, пока путь не станет зелёным', ''] : ['Зажми палец и держи', ''];
+  }
+  if (L.lesson === 2){
+    if (a) return [a.dir < 0 ? 'Слева — против часовой' : 'Справа — по часовой. Попробуй слева', ''];
+    if (s.status === 'move') return ['', ''];
+    return G.firstHop ? ['Ещё прыжок — рука близко', ''] : ['Палец слева крутит в другую сторону', ''];
+  }
+  return !G.firstHop && !a ? [L.hint || '', ''] : ['', ''];
 }
 function setHint(){
-  const L = G.s && G.s.L, el = $('hint'); if (!L || !L.hint){ el.textContent = ''; return; }
-  const h = Array.isArray(L.hint) ? L.hint : [L.hint, L.hint];
-  el.textContent = G.hintStage === 0 ? h[0] : G.hintStage === 1 ? h[1] : '';
+  const h = hintText(); if (h[0] === G.hintT && h[1] === G.hintC) return;
+  G.hintT = h[0]; G.hintC = h[1]; const el = $('hint'); el.textContent = h[0]; el.className = h[1];
+}
+function levelTags(li){
+  const L = LEVELS[li], out = [], seen = {};
+  for (const sh of L.surfs) if (FIRST_SEEN[sh.kind] === li && !seen[sh.kind]){ seen[sh.kind] = 1; out.push({ x: sh.x, y: sh.y, text: TAG_TEXT[sh.kind], dy: -18 }); }
+  for (const t of L.traps) if (FIRST_SEEN.trap === li && !seen.trap){ seen.trap = 1; out.push({ x: t.x, y: t.y, text: TAG_TEXT.trap, dy: -Math.max(t.w, t.h) / 2 - 14 }); }
+  if (L.lesson === 1){ out.push({ x: L.start.x, y: L.start.y, text: 'Это ты', dy: -40, self: true }); out.push({ x: (L.goal[0] + L.goal[1]) / 2, y: FH, text: 'Рука хозяина', dy: -56 }); }
+  return out;
 }
 
 function startLevel(li){
   li = Math.max(0, Math.min(LEVELS.length - 1, li));
-  G.s = createState(li); G.fx = []; G.ending = 0; G.aim = null; G.preview = null; G.hand = { mode: 'idle', t0: 0, fx: 0, fy: 0 };
-  G.deadAt = 0; G.lowWarned = false; G.hintStage = 0; G.autoQ = null; G.autoAt = 0; G.acc = 0; bgDirty = true;
+  const now = clock(), L = LEVELS[li];
+  G.s = createState(li); G.fx = []; G.hits = []; G.trail = []; G.ending = 0; G.aim = null; G.preview = null; G.flight = null;
+  G.hand = { mode: 'idle', t0: 0, fx: 0, fy: 0, cs: 0.2, last: 0 }; G.handX = (L.goal[0] + L.goal[1]) / 2; G.handY = FH + 2;
+  G.cam = { z: 1, x: FW / 2, y: (FH + V.BAND) / 2 }; G.camT = 0; G.flash = null; G.slow = false; G.hitStopUntil = 0;
+  G.deadAt = 0; G.lowWarned = false; G.firstHop = false; G.autoQ = null; G.autoAt = 0; G.acc = 0; G.combo = 0; G.coinPopAt = 0;
+  G.tags = levelTags(li); G.tagsUntil = Infinity; G.dripUntil = 0; G.settleAt = -1e9; G.liftAt = -1e9; G.squashAt = -1e9;
+  G.ringAt = now; G.ringLogged = false; bgDirty = true;
   log('event', 'level.start', 'level=' + (li + 1) + ' par=' + G.s.L.par + ' battery=' + G.s.battery);
   goto('game'); hud(); setHint(); notify('Я', 'Входящий вызов…');
+  Audio.ring(true); haptic([180, 120, 180]); log('fx.start', 'ring');
 }
-function hud(){
+// HUD: деления батарейки (одно = прыжок), монеты. spend — индекс деления, которое только что сгорело.
+function hud(spend){
   const s = G.s;
-  $('hud-level').textContent = s ? s.L.n + '. ' + s.L.name : 'Позвони себе';
-  const b = s ? s.battery : 100;
-  $('hud-bat').querySelector('i').style.width = Math.max(0, b) * 0.24 + 'px';
-  $('hud-bat').classList.toggle('low', b <= 20);
-  $('hud-pct').textContent = b + '%';
-  $('hud-coins').textContent = s ? s.got.filter(Boolean).length + '/' + s.got.length : '0/0';
-  $('btn-mute').textContent = G.save.muted ? '🔇' : '🔊';
+  $('hud-level').textContent = s ? s.L.n + ' · ' + s.L.name : 'Позвони себе';
+  const max = s ? Math.round(s.L.battery / CFG.HOP_COST) : 0, on = s ? Math.floor(s.battery / CFG.HOP_COST) : 0;
+  const next = s && G.aim && s.status === 'idle' ? on - 1 : -1;
+  let h = ''; for (let i = 0; i < max; i++) h += '<i class="' + (i >= on ? 'off' : '') + (i === next ? ' next' : '') + (i === spend ? ' spend' : '') + '"></i>';
+  const el = $('hud-cells'); el.innerHTML = h; el.classList.toggle('low', s && on <= lowCells(s.L));
+  $('hud-coins').textContent = s ? s.got.filter(Boolean).length + '/' + s.got.length : '';
+  el.style.visibility = $('hud-coins').style.visibility = s ? '' : 'hidden';
 }
+function lowCells(L){ return Math.max(1, Math.round(L.battery / CFG.HOP_COST / 4)); }   // «мало заряда» — последняя четверть делений
+function popCoins(){ const el = $('hud-coins'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
 
 // --- удержание и прыжок ---
 let down = null;                                   // { id, dir } — палец или клавиша зажаты
+function spinRate(t){ return (CFG.SPIN_W0 + (CFG.SPIN_W1 - CFG.SPIN_W0) * Math.min(1, t / CFG.SPIN_RAMP)) * D2R; }   // производная spinAngle
 function beginAim(dir){
   const s = G.s; if (!s || G.screen !== 'game' || s.status !== 'idle' || G.aim || G.ending) return;
   const now = clock();
-  G.aim = { start: now, a0: s.a, dir, reb: now + 3500 };
-  G.preview = null; haptic(4000);
-  if (G.hintStage === 0){ G.hintStage = 1; setHint(); }
+  G.aim = { start: now, last: now, a0: s.a, dir, ang: 0, tick: 0, green: false, k: 0, lockAt: -1e9, speckAt: now, gFrom: 0, gTo: 0, gLeftAt: -1e9 };
+  G.preview = null; haptic(12); hud();
   log('input', 'hold', 'dir=' + dir);
 }
-function endAim(cancel){
-  const a = G.aim; if (!a) return; G.aim = null; G.preview = null;
-  haptic(0); Audio.motorSet(0);
-  if (cancel || !G.s){ if (G.s) G.s.a = a.a0; log('input', 'hold.cancel'); return; }
-  if (release(G.s)){
-    G.acc = 0; G.lastPhys = clock();
-    haptic(Math.round(1000 * hopV0() / CFG.DECEL.floor));
-    if (G.hintStage < 2){ G.hintStage = 2; setHint(); }
-    log('input', 'release', 'deg=' + Math.round(((G.s.a / D2R) % 360 + 360) % 360));
+// Поворот: скорость разгоняется от абсолютного времени удержания (spinRate), угол копится по кадрам —
+// чтобы «липкий прицел» мог замедлить его, пока путь зелёный. Щелчок трещотки — каждые TICK_DEG.
+function updateAim(now){
+  const a = G.aim, s = G.s;
+  const dt = Math.min(0.1, Math.max(0, now - a.last) / 1000) * G.timeScale, held = (now - a.start) / 1000 * G.timeScale; a.last = now;
+  const slow = G.save.dev.sticky && a.green ? V.STICKY : 1;
+  a.ang += spinRate(held) * slow * dt; s.a = a.a0 + a.dir * a.ang;
+  a.k = Math.min(1, held / CFG.SPIN_RAMP) * slow;
+  const idx = Math.floor(a.ang / (V.TICK_DEG * D2R));
+  if (idx > a.tick){ a.tick = idx; Audio.tick(a.k); haptic(9); }
+  if (now - a.speckAt > 110 - 60 * a.k){ a.speckAt = now; fxSpeck(s.x, s.y, now); }
+  refreshPreview();
+  const green = !!(G.preview && G.preview.end.status === 'win');
+  if (green) a.gTo = a.ang;
+  if (green !== a.green){
+    a.green = green;
+    if (green){ a.lockAt = now; a.gFrom = a.ang; Audio.lock(); haptic([14, 40, 14]); log('event', 'aim.lock'); } else { a.gLeftAt = now; Audio.unlock(); }
   }
 }
-function shake(amp, ms, now){ G.shakeAmp = amp; G.shakeMs = ms; G.shakeUntil = now + ms; }
+function refreshPreview(){
+  const s = G.s; if (!s || s.status !== 'idle' || G.ending){ G.preview = null; return; }
+  if (G.preview && Math.abs(G.preview.a - s.a) < 0.002) return;
+  const p = {}, end = simulateHop(s, s.a, p), got = [];
+  for (let i = 0; i < end.got.length; i++) if (end.got[i] && !s.got[i]) got.push(i);
+  G.preview = { a: s.a, pts: p.pts, firstHit: p.firstHit, hits: p.hits, end, got };
+}
+function endAim(cancel){
+  const a = G.aim; if (!a) return; G.aim = null;
+  haptic(0); Audio.motorSet(0);
+  if (cancel || !G.s){ if (G.s) G.s.a = a.a0; G.preview = null; hud(); log('input', 'hold.cancel'); return; }
+  const now = clock(), held = (now - a.start) * G.timeScale;
+  if (held < V.TAP_MS) G.s.a = a.a0;               // тап — прыжок прямо, куда смотрел телефон
+  else if (!a.green && (now - a.gLeftAt) * G.timeScale < V.COYOTE_MS){   // проскочил зелёное на реакцию — прощаем
+    G.s.a = a.a0 + a.dir * (a.gFrom + a.gTo) / 2; log('event', 'aim.coyote', Math.round(now - a.gLeftAt) + 'ms');
+  }
+  launch('release');
+}
+// Все прыжки (палец, автоигра, хук) идут сюда: заранее считаем, чем кончится полёт, тем же ядром.
+function launch(src){
+  const s = G.s; if (!s || s.status !== 'idle') return false;
+  const f = simulateHop(s, s.a);
+  if (!release(s)) return false;
+  const now = clock();
+  G.flight = { x: f.x, y: f.y, t: f.t, status: f.status, cause: f.cause };
+  G.preview = null; G.acc = 0; G.lastPhys = now; G.slow = false; G.combo = 0; G.firstHop = true;
+  if (G.tagsUntil === Infinity) G.tagsUntil = now + V.TAG_FADE_MS;
+  log('input', src, 'deg=' + Math.round(((s.a / D2R) % 360 + 360) % 360) + ' expect=' + f.status + (f.cause ? ':' + f.cause : ''));
+  return true;
+}
+function shake(amp, ms, now){ if (amp >= G.shakeAmp * Math.max(0, (G.shakeUntil - now) / G.shakeMs)){ G.shakeAmp = amp; G.shakeMs = ms; G.shakeUntil = now + ms; } }
+function flash(color, a, ms, now){ G.flash = { color, a, ms, until: now + ms }; }
 
 function onEvent(e, now){
   const s = G.s;
   if (e.k === 'hop'){
+    const ca = Math.cos(s.a), sa = Math.sin(s.a);
     log('event', 'hop', 'n=' + s.hops + ' battery=' + s.battery);
-    G.fx.push({ k: 'ring', x: s.x, y: s.y, born: now, life: 350 }); hud();
+    G.liftAt = now; Audio.launch(); haptic(Math.round((G.flight ? G.flight.t - s.t : 0.7) * 1000 / G.timeScale));
+    fxPuff(s.x - ca * 18, s.y - sa * 18, -ca, -sa, now); G.fx.push({ k: 'ring', x: s.x, y: s.y, born: now, life: 380 });
+    shake(1.2, 110, now); hud(Math.floor(s.battery / CFG.HOP_COST));
     if (s.hops === 2 || s.hops === 5){ const m = MSGS[(s.L.n * 3 + s.hops) % MSGS.length]; notify(m[0], m[1]); }
-    if (s.battery <= 20 && !G.lowWarned){ G.lowWarned = true; notify('Заряд ' + s.battery + '%', 'Подключите зарядное устройство'); }
+    const left = Math.floor(s.battery / CFG.HOP_COST);
+    if (left <= lowCells(s.L) && left > 0 && !G.lowWarned){ G.lowWarned = true; Audio.low(); notify('Заряд ' + s.battery + '%', left === 1 ? 'Остался один прыжок' : 'Осталось прыжков: ' + left); }
   } else if (e.k === 'bounce'){
-    Audio.thud(e.p); haptic(Math.round(15 + 30 * e.p)); fxDust(e.x, e.y, now, 4 + Math.round(6 * e.p)); shake(1.5 + 4 * e.p, 180, now);
+    Audio.hit(e.kind, e.p); buzzRest([Math.round(18 + 30 * e.p), 45]);
+    fxDust(e.x, e.y, now, 4 + Math.round(6 * e.p)); fxStar(e.x, e.y, e.p, now); shake(1.5 + 5 * e.p, 200, now);
+    if (e.o && e.o.kind !== 'wall') G.hits.push({ o: e.o, born: now });
+    G.squashAt = now; if (e.p > V.HITSTOP_P) G.hitStopUntil = now + V.HITSTOP_MS;
+    if (e.p > 0.5) fxLabel(['БУМ', 'ТУК', 'БАЦ'][G.fx.length % 3], e.x, e.y - 12, '#ffffff', now, 13);
     log('event', 'bounce', e.kind + ' p=' + e.p.toFixed(2));
   } else if (e.k === 'surface'){
     const lab = { rug: ['шрх', '#c9d3ea'], tile: ['вжух', '#fff3d6'], sticky: ['чвак', '#ffc27a'] }[e.s];
-    if (e.s === 'rug') Audio.rug(); else if (e.s === 'tile') Audio.tile(); else if (e.s === 'sticky'){ Audio.sticky(); haptic(60); }
-    if (lab) fxLabel(lab[0], s.x, s.y - 22, lab[1], now);
+    if (e.s === 'rug'){ Audio.rug(); fxBits(s.x, s.y, now, 'fiber', 9); buzzRest([8, 60]); }
+    else if (e.s === 'tile'){ Audio.tile(); fxBits(s.x, s.y, now, 'streak', 6); }
+    else if (e.s === 'sticky'){ Audio.sticky(); fxBits(s.x, s.y, now, 'splash', 10); haptic(80); G.dripUntil = now + 2200; G.dripX = s.x; G.dripY = s.y; }
+    if (lab) fxLabel(lab[0], s.x, s.y - 26, lab[1], now, 16);
     log('event', 'surface', e.s);
   } else if (e.k === 'coin'){
-    Audio.coin(); haptic(15); fxSpark(e.x, e.y, now); fxLabel('+1', e.x, e.y - 14, '#ffe08a', now); hud();
-    log('event', 'coin', 'i=' + e.i);
+    G.combo++; Audio.coin(G.combo); buzzRest([16, 30]); fxSpark(e.x, e.y, now); fxLabel('+1', e.x, e.y - 16, '#ffe08a', now, 17); fxFly(e.x, e.y, now);
+    G.coinPopAt = now + 520; log('event', 'coin', 'i=' + e.i);
   } else if (e.k === 'trap'){
-    Audio.snap(); haptic([80, 40, 160]); shake(9, 420, now); fxDust(s.x, s.y, now, 10); fxLabel('ЩЁЛК', s.x, s.y - 30, '#ff8a8a', now);
-    G.ending = now + CFG.VIEW.TRAP_MS; log('event', 'level.lose', 'cause=trap'); log('fx.start', 'snap');
+    Audio.snap(); haptic([90, 40, 180]); G.hitStopUntil = now + V.TRAP_STOP_MS; flash('#ffffff', 0.75, 140, now); shake(11, 480, now);
+    fxDust(s.x, s.y, now, 12); fxStar(s.x, s.y, 1, now); fxLabel('ЩЁЛК', s.x, s.y - 34, '#ff8a8a', now, 26); G.squashAt = now;
+    G.ending = now + V.TRAP_MS; log('event', 'level.lose', 'cause=trap'); log('fx.start', 'snap');
   } else if (e.k === 'win'){
-    G.hand = { mode: 'grab', t0: now, fx: G.handX, fy: G.handY }; Audio.grab(); haptic([30, 60, 30]);
-    G.ending = now + CFG.VIEW.GRAB_MS + 150; log('event', 'level.win', 'hops=' + s.hops + ' par=' + s.L.par); log('fx.start', 'grab');
+    G.hand = Object.assign(G.hand, { mode: 'grab', t0: now, fx: G.handX, fy: G.handY }); Audio.win(); Audio.grab(); haptic([30, 60, 30, 60, 140]);
+    flash('#ffe2a8', 0.45, 260, now); fxGlow(s.x, FH, now); fxLabel('Нашёлся!', s.x, FH - 64, '#fff3c4', now, 24, 1500);
+    G.ending = now + V.GRAB_MS + 250; log('event', 'level.win', 'hops=' + s.hops + ' par=' + s.L.par); log('fx.start', 'grab');
   } else if (e.k === 'stop'){
-    haptic(0); log('event', 'stop', 'x=' + s.x.toFixed(0) + ' y=' + s.y.toFixed(0));
-    if (G.autoQ && G.autoQ.length) G.autoAt = now + CFG.VIEW.AUTO_GAP_MS;
+    haptic(18); Audio.land(); G.settleAt = now; fxDust(s.x, s.y + 6, now, 3);
+    log('event', 'stop', 'x=' + s.x.toFixed(0) + ' y=' + s.y.toFixed(0));
+    if (G.autoQ && G.autoQ.length) G.autoAt = now + V.AUTO_GAP_MS;
   } else if (e.k === 'dead'){
-    Audio.dead(); haptic(0); G.deadAt = now; G.ending = now + CFG.VIEW.DEAD_MS; log('event', 'level.lose', 'cause=battery'); log('fx.start', 'dead');
+    Audio.dead(); haptic(400); G.deadAt = now; G.ending = now + V.DEAD_MS; fxLabel('0%', s.x, s.y - 30, '#ff8a8a', now, 20, 1300);
+    log('event', 'level.lose', 'cause=battery'); log('fx.start', 'dead');
   }
 }
 function finishEnding(){
@@ -779,42 +975,57 @@ function finishEnding(){
 // --- цикл обновления: удержание считается от абсолютного времени, физика — фиксированным шагом (§4) ---
 function update(now){
   const s = G.s;
-  if (!s || G.paused){ G.lastPhys = now; return; }
+  if (!s || G.paused){ G.lastPhys = now; if (G.aim) G.aim.last = now; return; }
   if (down && !G.aim && s.status === 'idle' && G.screen === 'game' && !G.ending) beginAim(down.dir);
-  if (G.aim){
-    s.a = G.aim.a0 + G.aim.dir * spinAngle((now - G.aim.start) / 1000 * G.timeScale);
-    if (now > G.aim.reb){ haptic(4000); G.aim.reb = now + 3500; }
-    if (!G.preview || Math.abs(G.preview.a - s.a) > 0.003){ const p = {}; const end = simulateHop(s, s.a, p); G.preview = { a: s.a, pts: p.pts, firstHit: p.firstHit, end }; }
-  }
+  if (G.aim) updateAim(now);
   if (s.status === 'move'){
-    G.acc += Math.min(0.1, Math.max(0, now - G.lastPhys) / 1000) * G.timeScale;
+    const f = G.flight;
+    if (!G.slow && f && (f.status === 'win' || f.cause === 'trap') && Math.hypot(s.x - f.x, s.y - f.y) < V.SLOW_DIST){ G.slow = true; log('fx.start', 'slowmo', f.status); }
+    const k = now < G.hitStopUntil ? 0 : G.slow ? V.SLOWMO : 1;          // стоп-кадр и замедление — через масштаб времени (§4)
+    G.acc += Math.min(0.1, Math.max(0, now - G.lastPhys) / 1000) * G.timeScale * k;
     let n = 0;
     while (G.acc >= CFG.DT && s.status === 'move' && n < 60){ stepMove(s); G.acc -= CFG.DT; n++; }
     if (n >= 60) G.acc = 0;                        // защита от «спирали смерти»
-  } else G.acc = 0;
-  G.lastPhys = now;
-  Audio.motorSet(G.aim ? 0.8 : s.status === 'move' ? Math.min(1, Math.hypot(s.vx, s.vy) / hopV0()) : 0);
-  if (s.ev.length){ const evs = s.ev.splice(0); for (const e of evs) onEvent(e, now); }
-  if (G.autoQ && G.autoQ.length && G.autoAt && now >= G.autoAt && s.status === 'idle' && !G.aim){
-    G.autoAt = 0; s.a = G.autoQ.shift(); release(s); G.lastPhys = now; log('input', 'auto', 'deg=' + Math.round(s.a / D2R));
+    if (Math.hypot(s.vx, s.vy) > 0.3 * hopV0()) G.trail.push({ x: s.x, y: s.y, a: s.a, t: now });
+    if (now < G.dripUntil && Math.hypot(s.x - G.dripX, s.y - G.dripY) > 10){ G.dripX = s.x; G.dripY = s.y; G.fx.push({ k: 'drip', x: s.x, y: s.y, r: 3 + fxRnd() * 3, born: now, life: 2600 }); }
+  } else {
+    G.acc = 0;
+    if (G.slow){ G.slow = false; log('fx.end', 'slowmo'); }
   }
+  G.trail = G.trail.filter(p => now - p.t < 140);
+  G.lastPhys = now;
+  Audio.motorSet(G.aim ? 0.35 + 0.6 * G.aim.k : s.status === 'move' ? Math.min(1, Math.hypot(s.vx, s.vy) / hopV0()) : 0);
+  if (s.ev.length){ const evs = s.ev.splice(0); for (const e of evs) onEvent(e, now); }
+  if (!G.aim) refreshPreview();
+  if (G.autoQ && G.autoQ.length && G.autoAt && now >= G.autoAt && s.status === 'idle' && !G.aim){
+    G.autoAt = 0; s.a = G.autoQ.shift(); launch('auto');
+  }
+  if (G.coinPopAt && now >= G.coinPopAt){ G.coinPopAt = 0; hud(); popCoins(); }
+  if (!G.ringLogged && now - G.ringAt > V.RING_MS){ G.ringLogged = true; log('fx.end', 'ring'); }
   if (G.notifUntil && now > G.notifUntil){ $('notif').classList.add('hide'); G.notifUntil = 0; log('fx.end', 'notif'); }
   if (G.toastUntil && now > G.toastUntil){ $('toast').classList.add('hide'); G.toastUntil = 0; }
   if (G.ending && now >= G.ending) finishEnding();
+  setHint();
 }
 
 // --- ввод: Pointer Events, pointercancel тем же хендлером (§3) ---
 const cv = $('cv'), ctx = cv.getContext('2d');
 cv.addEventListener('pointerdown', (e) => {
   Audio.init(); if (down) return;
-  const r = cv.getBoundingClientRect();
-  down = { id: e.pointerId, dir: !G.save.dev.side ? 1 : (e.clientX - r.left < r.width / 2 ? -1 : 1) };
+  const r = cv.getBoundingClientRect(), left = e.clientX - r.left < r.width / 2;
+  down = { id: e.pointerId, dir: !G.save.dev.side ? 1 : left ? -1 : 1 };
+  G.touch = { x: (e.clientX - r.left) * DPR, y: (e.clientY - r.top) * DPR, dir: down.dir, t0: clock() };
   try { cv.setPointerCapture(e.pointerId); } catch (err) {}
   beginAim(down.dir);
 });
+cv.addEventListener('pointermove', (e) => {
+  if (!down || e.pointerId !== down.id || !G.touch) return;
+  const r = cv.getBoundingClientRect(); G.touch.x = (e.clientX - r.left) * DPR; G.touch.y = (e.clientY - r.top) * DPR;
+});
 function onUp(e){
   if (!down || e.pointerId !== down.id) return;
-  down = null; endAim(e.type === 'pointercancel');
+  if (G.touch) G.fx.push({ k: 'tap', sx: G.touch.x, sy: G.touch.y, born: clock(), life: 320 });
+  down = null; G.touch = null; endAim(e.type === 'pointercancel');
 }
 cv.addEventListener('pointerup', onUp); cv.addEventListener('pointercancel', onUp);
 document.addEventListener('keydown', (e) => {          // дубли на клавиатуру для отладки (§3)
@@ -828,81 +1039,125 @@ document.addEventListener('keyup', (e) => {
   if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') && down && down.id === 'key'){ down = null; endAim(false); }
 });
 $('btn-reset').onclick = () => { Audio.init(); log('input', 'button', 'reset'); startLevel(G.s ? G.s.li : 0); };
-$('btn-menu').onclick = () => { log('input', 'button', 'menu'); goto('menu'); };
-$('btn-dev').onclick = () => { log('input', 'button', 'dev'); G.devFrom = G.screen; goto('dev'); };
-$('btn-mute').onclick = () => { G.save.muted = !G.save.muted; save(); hud(); Audio.motorSet(0); log('input', 'button', 'mute=' + G.save.muted); };
+$('btn-menu').onclick = () => { Audio.init(); log('input', 'button', 'menu'); goto('menu'); };
 
 // --- размер: поле 400×640 вписывается целиком, логика не зависит от экрана (§2) ---
-const FW = CFG.FIELD_W, FH = CFG.FIELD_H;
 const fogCv = document.createElement('canvas'), fctx = fogCv.getContext('2d');
 const bgCv = document.createElement('canvas'), bctx = bgCv.getContext('2d');
-let scale = 1, DPR = 1, OX = 0, OY = 0, bgDirty = true;
+const BG = { x0: -60, y0: -80, w: FW + 120, h: FH + 300, q: 1.4 };   // статичный слой с запасом под наезд камеры и высокий экран
+let scale = 1, DPR = 1, bgDirty = true;
 function fit(){
   const r = $('game').getBoundingClientRect(); if (!r.width || !r.height) return;
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  const sc = Math.min(r.width / FW, r.height / (FH + CFG.VIEW.BAND));
-  const ox = (r.width / sc - FW) / 2, oy = (r.height / sc - FH - CFG.VIEW.BAND) / 2;
+  const sc = Math.min(r.width / FW, r.height / (FH + V.BAND));
   const pw = Math.round(r.width * DPR), ph = Math.round(r.height * DPR);
-  if (cv.width !== pw || cv.height !== ph || sc !== scale || ox !== OX || oy !== OY){
-    cv.width = pw; cv.height = ph; fogCv.width = pw; fogCv.height = ph; scale = sc; OX = ox; OY = oy; bgDirty = true;
-  }
+  if (cv.width !== pw || cv.height !== ph || sc !== scale){ cv.width = pw; cv.height = ph; fogCv.width = pw; fogCv.height = ph; scale = sc; bgDirty = true; }
 }
 let fitTimer = 0;
 const refit = () => { clearTimeout(fitTimer); fitTimer = setTimeout(fit, 140); };
 window.addEventListener('resize', refit); window.addEventListener('orientationchange', refit);
 setInterval(fit, 800);
 document.addEventListener('visibilitychange', () => {
-  G.paused = document.hidden; if (G.paused){ down = null; endAim(true); haptic(0); Audio.motorSet(0); }
+  G.paused = document.hidden; if (G.paused){ down = null; G.touch = null; endAim(true); haptic(0); Audio.motorSet(0); }
   log('event', G.paused ? 'pause' : 'resume');
 });
+
+// --- камера: по умолчанию всё поле (нужно для плана), наезд — только на развязке и подлёте ---
+// Высокий экран: поле прижато к верху (виден плинтус), лишняя высота уходит комнате с рукой. Первый кадр уровня — без доезда.
+function updateCam(now){
+  const s = G.s, cam = G.cam, K0 = DPR * scale;
+  let z = 1, x = FW / 2, y = Math.max((FH + V.BAND) / 2, cv.height / K0 / 2 - 18);
+  if (s.status === 'win'){ z = V.WIN_ZOOM; x = s.x; y = FH - 20; }
+  else if (s.status === 'lose'){ z = V.LOSE_ZOOM; x = s.x; y = s.y; }
+  else if (G.slow && G.flight){ z = V.SLOW_ZOOM; x = (s.x + G.flight.x) / 2; y = (s.y + G.flight.y) / 2; }
+  const dt = G.camT ? Math.min(0.1, Math.max(0, now - G.camT) / 1000) : -1; G.camT = now;
+  const kk = dt < 0 ? 1 : 1 - Math.exp(-dt * V.CAM_K);
+  cam.z += (z - cam.z) * kk;
+  const hw = cv.width / (K0 * cam.z) / 2, hh = cv.height / (K0 * cam.z) / 2;
+  const cl = (v, lo, hi) => lo > hi ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, v));
+  x = cl(x, hw - 30, FW + 30 - hw); y = cl(y, hh - 18, FH + 200 - hh);
+  cam.x += (x - cam.x) * kk; cam.y += (y - cam.y) * kk;
+}
 
 // --- рендер: всё в canvas, цвета из CSS-переменных (§9) ---
 const col = {};
 function readColors(){
   const cs = getComputedStyle(document.documentElement);
   for (const k of ['void', 'room', 'room2', 'fog', 'floor', 'floor2', 'seam', 'rug', 'rug2', 'sock', 'sock2', 'tile', 'tile2', 'juice', 'wood', 'wood2',
-    'box', 'book', 'slipper', 'lego', 'cable', 'remote', 'metal', 'trap', 'cheese', 'phone', 'screen', 'skin', 'skin2', 'sleeve', 'coin', 'dust', 'good', 'bad'])
+    'box', 'book', 'slipper', 'lego', 'cable', 'remote', 'metal', 'trap', 'cheese', 'phone', 'screen', 'screen2', 'skin', 'skin2', 'sleeve', 'coin', 'dust', 'good', 'bad', 'warm'])
     col[k] = cs.getPropertyValue('--' + k).trim();
 }
 const fxRnd = mulberry32(4242);
-function fxDust(x, y, now, n){ for (let i = 0; i < n; i++){ const a = fxRnd() * Math.PI * 2, v = 15 + fxRnd() * 40; G.fx.push({ k: 'dust', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, born: now, life: 420 + fxRnd() * 220 }); } }
-function fxSpark(x, y, now){ for (let i = 0; i < 8; i++){ const a = i / 8 * Math.PI * 2; G.fx.push({ k: 'spark', x, y, vx: Math.cos(a) * 70, vy: Math.sin(a) * 70, born: now, life: 380 }); } }
-function fxLabel(text, x, y, color, now){ G.fx.push({ k: 'label', text, x, y, color, born: now, life: 900 }); }
+function fxDust(x, y, now, n){ for (let i = 0; i < n; i++){ const a = fxRnd() * Math.PI * 2, v = 15 + fxRnd() * 45; G.fx.push({ k: 'dust', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, born: now, life: 420 + fxRnd() * 240 }); } }
+function fxPuff(x, y, dx, dy, now){ for (let i = 0; i < 7; i++){ const a = Math.atan2(dy, dx) + (fxRnd() - 0.5) * 1.6, v = 30 + fxRnd() * 50; G.fx.push({ k: 'dust', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, born: now, life: 380 + fxRnd() * 200 }); } }
+function fxSpeck(x, y, now){ const a = fxRnd() * Math.PI * 2, r = 18 + fxRnd() * 10; G.fx.push({ k: 'speck', x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, vx: Math.cos(a) * 20, vy: Math.sin(a) * 20, born: now, life: 300 }); }
+function fxSpark(x, y, now){ for (let i = 0; i < 10; i++){ const a = i / 10 * Math.PI * 2; G.fx.push({ k: 'spark', x, y, vx: Math.cos(a) * 80, vy: Math.sin(a) * 80, born: now, life: 420 }); } }
+function fxStar(x, y, p, now){ G.fx.push({ k: 'star', x, y, r: 10 + 16 * p, born: now, life: 220 }); }
+function fxBits(x, y, now, k, n){ for (let i = 0; i < n; i++){ const a = fxRnd() * Math.PI * 2, v = 20 + fxRnd() * 50; G.fx.push({ k, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, a, born: now, life: 450 + fxRnd() * 250 }); } }
+function fxGlow(x, y, now){ G.fx.push({ k: 'glow', x, y, born: now, life: 900 }); for (let i = 0; i < 14; i++){ const a = -Math.PI * (0.1 + 0.8 * fxRnd()), v = 60 + fxRnd() * 90; G.fx.push({ k: 'spark', x, y: y - 10, vx: Math.cos(a) * v, vy: Math.sin(a) * v, born: now, life: 600 + fxRnd() * 300 }); } }
+function fxLabel(text, x, y, color, now, size, life){ G.fx.push({ k: 'label', text, x, y, color, size: size || 15, born: now, life: life || 900 }); }
+// Монета летит в счётчик HUD — в экранных пикселях (цель — над канвасом, в шапке).
+function fxFly(x, y, now){
+  const m = G.mat, cr = cv.getBoundingClientRect(), hr = $('hud-coins').getBoundingClientRect();
+  G.fx.push({ k: 'fly', sx: x * m.k + m.ox, sy: y * m.k + m.oy, tx: (hr.left + 9 - cr.left) * DPR, ty: (hr.top + hr.height / 2 - cr.top) * DPR, born: now, life: 520 });
+}
 
 function render(now){
-  const c = ctx;
-  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
-  const s = G.s; if (!s) return;
+  const c = ctx, s = G.s;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = col.void || '#08090c'; c.fillRect(0, 0, cv.width, cv.height);
+  if (!s) return;
   if (bgDirty) drawStatic();
+  updateCam(now);
   let sx = 0, sy = 0;
   if (now < G.shakeUntil){ const k = (G.shakeUntil - now) / G.shakeMs; sx = Math.sin(now * 0.11) * G.shakeAmp * k; sy = Math.cos(now * 0.137) * G.shakeAmp * k; }
-  const K = DPR * scale, T = () => c.setTransform(K, 0, 0, K, (OX + sx) * K, (OY + sy) * K);
-  c.drawImage(bgCv, sx * K, sy * K);
+  const k = DPR * scale * G.cam.z, ox = cv.width / 2 - (G.cam.x - sx) * k, oy = cv.height / 2 - (G.cam.y - sy) * k;
+  G.mat = { k, ox, oy };
+  const T = () => c.setTransform(k, 0, 0, k, ox, oy);
   T();
+  c.drawImage(bgCv, BG.x0, BG.y0, BG.w, BG.h);
+  drawHits(c, now);
   geom(s.L).traps.forEach((sh, i) => drawTrap(c, sh, s.cause === 'trap' && s.trap === i));
-  if (G.save.dev.fog){ drawFog(now, sx, sy); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(fogCv, 0, 0); T(); }
-  drawEdgeLight(c, s.L);
-  (s.L.coins || []).forEach((p, i) => { if (!s.got[i]) drawCoin(c, p[0], p[1], now + i * 400); });
-  if (s.L.sideHint && G.save.dev.side){ drawSpinArrow(c, 34, FH - 96, -1, !!(down && down.dir < 0)); drawSpinArrow(c, FW - 34, FH - 96, 1, !!(down && down.dir > 0)); }
-  drawPreview(c);
+  drawFx(c, now, true);
+  if (G.save.dev.fog){ drawFog(now); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(fogCv, 0, 0); T(); }
+  drawEdgeLight(c, s.L, now);
+  const pv = G.preview;
+  (s.L.coins || []).forEach((p, i) => { if (!s.got[i]) drawCoin(c, p[0], p[1], now + i * 400, pv && G.save.dev.preview !== 'off' && pv.got.includes(i)); });
+  drawTags(c, now);
+  if (s.status === 'idle' && !G.ending && (s.L.lesson || (G.save.dev.side && !G.firstHop))) drawSideHints(c, now, !!s.L.lesson);
+  drawPreview(c, now);
+  if (G.aim) drawAimDial(c, s.x, s.y, s.a, G.aim, now);
+  if (s.status === 'idle' && !G.aim && !G.ending && G.save.dev.preview === 'off') drawAimMark(c, s.x, s.y, s.a, now);
+  drawRing(c, s.x, s.y, now);
   const hand = handPose(now), buzz = !!G.aim || s.status === 'move';
-  let px = s.x, py = s.y;
-  if (hand.carry){ px = hand.x; py = hand.y - 22; }
-  if (buzz){ px += Math.sin(now * 0.09) * 1.3; py += Math.cos(now * 0.117) * 1.3; }
-  if (s.status === 'idle' && !G.aim && !G.ending) drawAimMark(c, s.x, s.y, s.a, now);
-  if (G.aim) drawSpinArc(c, s.x, s.y, s.a, G.aim.dir);
-  drawPhone(c, px, py, s.a, { buzz, now, dead: s.cause === 'battery' && now - G.deadAt > 450, cracked: s.cause === 'trap' });
+  let px = s.x, py = s.y, pa = s.a;
+  if (hand.carry){ px = hand.x; py = hand.y - 24; }
+  const jit = G.aim ? 0.6 + 1.6 * G.aim.k : s.status === 'move' ? 1.4 * Math.min(1, Math.hypot(s.vx, s.vy) / hopV0()) : 0;
+  if (jit){ px += Math.sin(now * 0.09) * jit; py += Math.cos(now * 0.117) * jit; }
+  const st = (now - G.settleAt) / V.SETTLE_MS; if (st >= 0 && st < 1) pa += 0.1 * Math.sin(st * 18) * (1 - st);
+  for (const p of G.trail) drawPhone(c, p.x, p.y, p.a, { trail: 0.22 * (1 - (now - p.t) / 140) });
+  const lp = (now - G.liftAt) / V.LIFT_MS, lift = lp >= 0 && lp < 1 ? Math.sin(lp * Math.PI) : 0;
+  const sp = (now - G.squashAt) / V.SQUASH_MS, squash = sp >= 0 && sp < 1 ? 1 - sp : 0;
+  const ring = Math.max(0, 1 - (now - G.ringAt) / V.RING_MS);
+  const lastHop = s.status === 'move' && G.flight && G.flight.status === 'lose' && G.flight.cause === 'battery';
+  drawPhone(c, px, py, pa, { buzz, now, lift, squash, ring, low: lastHop || (s.status === 'idle' && s.battery < 2 * CFG.HOP_COST),
+    dead: s.cause === 'battery' && now - G.deadAt > 450, cracked: s.cause === 'trap', green: !!(G.aim && G.aim.green) });
   drawHand(c, hand.x, hand.y, hand.close);
-  drawFx(c, now);
+  drawFx(c, now, false);
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  drawTouch(c, now);
+  drawScreenFx(c, now);
+  if (G.flash && now < G.flash.until){ c.globalAlpha = G.flash.a * (G.flash.until - now) / G.flash.ms; c.fillStyle = G.flash.color; c.fillRect(0, 0, cv.width, cv.height); c.globalAlpha = 1; }
 }
 
 // Статичный слой уровня (пол, поверхности, мусор, препятствия, края) — рисуется один раз на уровень/размер.
 function drawStatic(){
   bgDirty = false; readColors();
-  bgCv.width = cv.width; bgCv.height = cv.height;
-  const c = bctx, K = DPR * scale, L = G.s.L, g = geom(L);
+  const K = DPR * scale * BG.q, c = bctx, L = G.s.L, g = geom(L);
+  bgCv.width = Math.ceil(BG.w * K); bgCv.height = Math.ceil(BG.h * K);
   c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = col.void; c.fillRect(0, 0, bgCv.width, bgCv.height);
-  c.setTransform(K, 0, 0, K, OX * K, OY * K);
+  c.setTransform(K, 0, 0, K, -BG.x0 * K, -BG.y0 * K);
+  const ug = c.createLinearGradient(0, BG.y0, 0, 0); ug.addColorStop(0, '#0b0907'); ug.addColorStop(1, '#1c150f');   // изнанка дивана над плинтусом
+  c.fillStyle = ug; c.fillRect(BG.x0, BG.y0, BG.w, -BG.y0);
   drawRoom(c);
   drawFloor(c, L);
   for (const sh of g.surfs) drawSurface(c, sh);
@@ -1016,33 +1271,51 @@ function drawEdges(c, L){
   c.fillStyle = col.wood2; c.fillRect(-20, FH, g0 + 20, 16); c.fillRect(g1, FH, FW - g1 + 20, 16);
   c.fillStyle = 'rgba(255,220,170,0.25)'; c.fillRect(-20, FH, g0 + 20, 2); c.fillRect(g1, FH, FW - g1 + 20, 2);
 }
-// Темнота: свет от экрана (меньше при низком заряде, ярче при удержании) и полоса света из комнаты.
-function drawFog(now, sx, sy){
-  const f = fctx, K = DPR * scale, s = G.s;
+// Вспышка контура задетого предмета: видно, обо что ударился.
+function drawHits(c, now){
+  G.hits = G.hits.filter(h => now - h.born < 240);
+  for (const h of G.hits){
+    const o = h.o, p = (now - h.born) / 240, g = 1 + 0.08 * (1 - p);
+    c.save(); c.translate(o.x, o.y); c.rotate((o.r || 0) * D2R); c.scale(g, g);
+    c.globalAlpha = 0.9 * (1 - p); c.strokeStyle = '#fff'; c.lineWidth = 3; c.beginPath();
+    if (o.k === 'post') c.arc(0, 0, o.pr, 0, 7); else c.roundRect(-o.hw, -o.hh, o.hw * 2, o.hh * 2, 4);
+    c.stroke(); c.restore();
+  }
+  c.globalAlpha = 1;
+}
+// Темнота: свет от экрана (меньше при низком заряде, ярче при удержании и звонке) и полоса света из комнаты.
+function drawFog(now){
+  const f = fctx, s = G.s, m = G.mat;
   f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'source-over'; f.clearRect(0, 0, fogCv.width, fogCv.height);
-  const dying = s.cause === 'battery' ? Math.min(1, (now - G.deadAt) / CFG.VIEW.DEAD_MS) : 0;
-  f.globalAlpha = Math.min(0.95, CFG.VIEW.FOG + 0.3 * dying); f.fillStyle = col.fog; f.fillRect(0, 0, fogCv.width, fogCv.height); f.globalAlpha = 1;
+  const dying = s.cause === 'battery' ? Math.min(1, (now - G.deadAt) / V.DEAD_MS) : 0;
+  f.globalAlpha = Math.min(0.95, V.FOG + 0.4 * dying); f.fillStyle = col.fog; f.fillRect(0, 0, fogCv.width, fogCv.height); f.globalAlpha = 1;
   f.globalCompositeOperation = 'destination-out';
-  f.setTransform(K, 0, 0, K, (OX + sx) * K, (OY + sy) * K);
-  const lr = CFG.VIEW.LIGHT_R * (0.55 + 0.45 * s.battery / 100) * (G.aim ? 1.15 : 1) * (1 - dying);
+  f.setTransform(m.k, 0, 0, m.k, m.ox, m.oy);
+  const ring = Math.max(0, 1 - (now - G.ringAt) / V.RING_MS);
+  const lr = V.LIGHT_R * (0.6 + 0.4 * s.battery / s.L.battery) * (G.aim ? 1.12 : 1) * (1 + 0.15 * ring * (0.5 + 0.5 * Math.sin(now * 0.02))) * (1 - dying);
   if (lr > 1){
     const rg = f.createRadialGradient(s.x, s.y, 0, s.x, s.y, lr);
     rg.addColorStop(0, 'rgba(0,0,0,1)'); rg.addColorStop(0.55, 'rgba(0,0,0,0.85)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
     f.fillStyle = rg; f.beginPath(); f.arc(s.x, s.y, lr, 0, 7); f.fill();
   }
-  const lg = f.createLinearGradient(0, FH + 6, 0, FH - CFG.VIEW.EDGE_LIGHT);
+  const lg = f.createLinearGradient(0, FH + 6, 0, FH - V.EDGE_LIGHT);
   lg.addColorStop(0, 'rgba(0,0,0,1)'); lg.addColorStop(1, 'rgba(0,0,0,0)');
-  f.fillStyle = lg; f.fillRect(-400, FH - CFG.VIEW.EDGE_LIGHT, FW + 800, CFG.VIEW.EDGE_LIGHT + 800);
+  f.fillStyle = lg; f.fillRect(-400, FH - V.EDGE_LIGHT, FW + 800, V.EDGE_LIGHT + 800);
 }
-// Тёплый свет в проёме и пунктир линии, за которой рука достаёт.
-function drawEdgeLight(c, L){
-  const g0 = L.goal[0], g1 = L.goal[1];
+// Тёплый свет в проёме: лучи, пульсирующий пунктир линии, за которой рука достаёт.
+function drawEdgeLight(c, L, now){
+  const g0 = L.goal[0], g1 = L.goal[1], t = now / 1000;
   c.save(); c.globalCompositeOperation = 'lighter';
-  const lg = c.createLinearGradient(0, FH - 80, 0, FH + 10);
-  lg.addColorStop(0, 'rgba(255,200,130,0)'); lg.addColorStop(1, 'rgba(255,200,130,0.3)');
-  c.fillStyle = lg; c.fillRect(g0, FH - 80, g1 - g0, 90 + CFG.VIEW.BAND);
+  const lg = c.createLinearGradient(0, FH - 110, 0, FH + 10);
+  lg.addColorStop(0, 'rgba(255,200,130,0)'); lg.addColorStop(1, 'rgba(255,200,130,0.32)');
+  c.fillStyle = lg; c.fillRect(g0, FH - 110, g1 - g0, 120 + V.BAND);
+  for (let i = 0; i < 3; i++){                                    // лучи из комнаты под диван
+    const x = g0 + (g1 - g0) * (0.2 + 0.3 * i) + Math.sin(t * 0.7 + i * 2) * 8, a = 0.07 + 0.05 * Math.sin(t * 1.3 + i);
+    c.fillStyle = 'rgba(255,215,150,' + a.toFixed(3) + ')'; c.beginPath();
+    c.moveTo(x - 10, FH); c.lineTo(x + 10, FH); c.lineTo(x + 26 - i * 10, FH - 130); c.lineTo(x + 2 - i * 10, FH - 130); c.closePath(); c.fill();
+  }
   c.restore();
-  c.strokeStyle = 'rgba(255,214,150,0.55)'; c.setLineDash([6, 6]); c.lineWidth = 1.5;
+  c.strokeStyle = 'rgba(255,214,150,' + (0.5 + 0.25 * Math.sin(t * 3)).toFixed(2) + ')'; c.setLineDash([6, 6]); c.lineDashOffset = -now * 0.02; c.lineWidth = 2;
   c.beginPath(); c.moveTo(g0, CFG.GOAL_Y); c.lineTo(g1, CFG.GOAL_Y); c.stroke(); c.setLineDash([]);
 }
 // Мышеловка сверху: деревянная планка, пружина поперёк, скоба (взведена — к краю, захлопнута — на сыре), сыр.
@@ -1059,68 +1332,162 @@ function drawTrap(c, sh, snapped){
   c.lineWidth = 1.5; for (const x of [-hw + 10, hw - 10]){ c.beginPath(); c.arc(x, 0, 4, 0, 7); c.stroke(); }
   c.restore();
 }
-// Монета: золото с ободком и бегущим бликом. t — время со сдвигом, чтобы блики не синхронились.
-function drawCoin(c, x, y, t){
+// Монета: золото с ободком и бегущим бликом. t — время со сдвигом, чтобы блики не синхронились; mark — путь её соберёт.
+function drawCoin(c, x, y, t, mark){
+  if (mark){ const p = (t / 600) % 1; c.strokeStyle = 'rgba(255,224,138,' + (0.9 * (1 - p)).toFixed(2) + ')'; c.lineWidth = 2.5; c.beginPath(); c.arc(x, y, CFG.COIN_R + 3 + 9 * p, 0, 7); c.stroke(); }
+  const b = 1 + 0.06 * Math.sin(t * 0.005);
   c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(x + 2, y + 3, CFG.COIN_R, 0, 7); c.fill();
-  c.fillStyle = col.coin; c.beginPath(); c.arc(x, y, CFG.COIN_R, 0, 7); c.fill();
-  c.strokeStyle = '#b8861f'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, CFG.COIN_R - 2.5, 0, 7); c.stroke();
+  c.fillStyle = col.coin; c.beginPath(); c.arc(x, y, CFG.COIN_R * b, 0, 7); c.fill();
+  c.strokeStyle = '#b8861f'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, CFG.COIN_R * b - 2.5, 0, 7); c.stroke();
   const k = (t / 1400) % 1; c.fillStyle = 'rgba(255,255,255,' + (0.6 * (1 - k)).toFixed(2) + ')';
   c.beginPath(); c.arc(x - 3 + 6 * k, y - 3, 2.2, 0, 7); c.fill();
 }
-// Стрелки-подсказки «слева — против часовой, справа — по часовой»; active — эта сторона зажата.
-function drawSpinArrow(c, x, y, dir, active){
-  c.save(); c.globalAlpha = active ? 0.95 : 0.45; c.strokeStyle = '#fff'; c.fillStyle = '#fff'; c.lineWidth = 3;
-  const r = 15, a0 = -Math.PI * 0.9, a1 = Math.PI * 0.4;
+// Плашка с подписью над предметом; хвостик к нему. Гаснут через TAG_FADE_MS после первого прыжка.
+function drawTags(c, now){
+  if (!G.tags.length) return;
+  const a = now < G.tagsUntil ? 1 : Math.max(0, 1 - (now - G.tagsUntil) / 400); if (a <= 0){ G.tags = []; return; }
+  c.save(); c.font = '700 13px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  for (const t of G.tags){
+    if (t.self && (G.aim || G.firstHop)) continue;                 // «это ты» мешает циферблату и врёт после прыжка
+    const w = c.measureText(t.text).width + 16, bob = Math.sin(now * 0.004 + t.x) * 2;
+    const x = Math.max(w / 2 + 4, Math.min(FW - w / 2 - 4, t.x)), y = t.y + t.dy + bob;
+    c.globalAlpha = a;
+    c.fillStyle = 'rgba(15,16,22,0.88)'; c.beginPath(); c.roundRect(x - w / 2, y - 11, w, 22, 11); c.fill();
+    c.beginPath(); c.moveTo(t.x - 5, y + 10); c.lineTo(t.x + 5, y + 10); c.lineTo(t.x, y + 16); c.fill();
+    c.fillStyle = t.text === TAG_TEXT.trap ? '#ff9b9b' : '#ffffff'; c.fillText(t.text, x, y + 0.5);
+  }
+  c.restore();
+}
+// Подсказка сторон: слева — против часовой, справа — по часовой. На уроках крупно и с пальцем, потом — мелко до первого прыжка.
+function drawSideHints(c, now, big){
+  const y = FH - 150, r = big ? 20 : 13, pulse = 1 + 0.08 * Math.sin(now * 0.008);
+  for (const dir of [-1, 1]){
+    const x = dir < 0 ? 34 : FW - 34, on = !!(G.aim && G.aim.dir === dir);
+    c.save(); c.globalAlpha = on ? 1 : big ? 0.75 : 0.4;
+    c.fillStyle = 'rgba(15,16,22,0.6)'; c.beginPath(); c.arc(x, y, r + 9, 0, 7); c.fill();
+    drawSpinArrow(c, x, y, dir, r * (on ? pulse : 1), on ? col.good : '#fff');
+    c.restore();
+  }
+  // Палец-подсказка «держи здесь» до первого касания уроков: справа на 1-м уроке, слева на 2-м.
+  const L = G.s.L;
+  if (big && !G.firstHop && !G.aim){
+    const dir = L.lesson === 2 ? -1 : 1, x = dir < 0 ? 70 : FW - 70, fy = FH - 230, p = (now % 1200) / 1200, press = p < 0.5 ? p * 2 : 1;
+    c.save();
+    c.strokeStyle = 'rgba(255,255,255,' + (0.8 * (1 - p)).toFixed(2) + ')'; c.lineWidth = 3; c.beginPath(); c.arc(x, fy, 14 + 26 * p, 0, 7); c.stroke();
+    c.font = '34px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.translate(x + 6, fy + 18 - 6 * press); c.fillText('👆', 0, 0);
+    c.restore();
+    c.save(); c.font = '700 14px system-ui, sans-serif'; c.textAlign = 'center'; c.fillStyle = '#fff'; c.strokeStyle = 'rgba(0,0,0,0.7)'; c.lineWidth = 3;
+    c.strokeText('держи', x, fy + 50); c.fillText('держи', x, fy + 50); c.restore();
+  }
+}
+function drawSpinArrow(c, x, y, dir, r, color){
+  c.strokeStyle = color; c.fillStyle = color; c.lineWidth = Math.max(2.5, r * 0.2); c.lineCap = 'round';
+  const a0 = -Math.PI * 0.85, a1 = Math.PI * 0.45;
   c.beginPath(); if (dir > 0) c.arc(x, y, r, a0, a1); else c.arc(x, y, r, Math.PI - a0, Math.PI - a1, true); c.stroke();
-  const ea = dir > 0 ? a1 : Math.PI - a1, ex = x + Math.cos(ea) * r, ey = y + Math.sin(ea) * r, ta = ea + dir * Math.PI / 2;
-  c.beginPath(); c.moveTo(ex + Math.cos(ta) * 7, ey + Math.sin(ta) * 7); c.lineTo(ex + Math.cos(ta + 2.3) * 6, ey + Math.sin(ta + 2.3) * 6); c.lineTo(ex + Math.cos(ta - 2.3) * 6, ey + Math.sin(ta - 2.3) * 6); c.closePath(); c.fill();
+  const ea = dir > 0 ? a1 : Math.PI - a1, ex = x + Math.cos(ea) * r, ey = y + Math.sin(ea) * r, ta = ea + dir * Math.PI / 2, h = r * 0.5;
+  c.beginPath(); c.moveTo(ex + Math.cos(ta) * h, ey + Math.sin(ta) * h); c.lineTo(ex + Math.cos(ta + 2.3) * h * 0.85, ey + Math.sin(ta + 2.3) * h * 0.85); c.lineTo(ex + Math.cos(ta - 2.3) * h * 0.85, ey + Math.sin(ta - 2.3) * h * 0.85); c.closePath(); c.fill();
+}
+// Циферблат вокруг телефона во время удержания: дуга — насколько уже повернул, стрелка — куда крутится.
+function drawAimDial(c, x, y, a, aim, now){
+  const r = 40, span = Math.min(aim.ang, Math.PI * 2 - 0.05), color = aim.green ? col.good : '#ffffff';
+  c.save(); c.lineCap = 'round';
+  c.strokeStyle = 'rgba(255,255,255,0.16)'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, r, 0, 7); c.stroke();
+  for (let i = 0; i < 12; i++){ const t = i * Math.PI / 6; c.beginPath(); c.moveTo(x + Math.cos(t) * (r - 3), y + Math.sin(t) * (r - 3)); c.lineTo(x + Math.cos(t) * (r + 3), y + Math.sin(t) * (r + 3)); c.stroke(); }
+  if (span > 0.01){ c.strokeStyle = color; c.globalAlpha = 0.85; c.lineWidth = 4; c.beginPath(); c.arc(x, y, r, a - aim.dir * span, a, aim.dir < 0); c.stroke(); c.globalAlpha = 1; }
+  const ex = x + Math.cos(a) * r, ey = y + Math.sin(a) * r, ta = a + aim.dir * Math.PI / 2, lk = Math.max(0, 1 - (now - aim.lockAt) / 300);
+  c.fillStyle = color; c.beginPath(); c.arc(ex, ey, 5 + 5 * lk, 0, 7); c.fill();
+  c.beginPath(); c.moveTo(ex + Math.cos(ta) * 11, ey + Math.sin(ta) * 11); c.lineTo(ex + Math.cos(ta + 2.4) * 8, ey + Math.sin(ta + 2.4) * 8); c.lineTo(ex + Math.cos(ta - 2.4) * 8, ey + Math.sin(ta - 2.4) * 8); c.fill();
+  if (lk > 0){ c.strokeStyle = col.good; c.globalAlpha = lk; c.lineWidth = 3; c.beginPath(); c.arc(x, y, r + 14 * (1 - lk), 0, 7); c.stroke(); }
   c.restore();
 }
-// Дуга вокруг телефона во время удержания — куда он крутится.
-function drawSpinArc(c, x, y, a, dir){
-  c.save(); c.strokeStyle = 'rgba(255,255,255,0.7)'; c.lineWidth = 2.5; const r = 32;
-  c.beginPath(); c.arc(x, y, r, a - dir * 1.1, a, dir < 0); c.stroke();
-  const ex = x + Math.cos(a) * r, ey = y + Math.sin(a) * r, ta = a + dir * Math.PI / 2;
-  c.fillStyle = 'rgba(255,255,255,0.85)'; c.beginPath();
-  c.moveTo(ex + Math.cos(ta) * 7, ey + Math.sin(ta) * 7); c.lineTo(ex + Math.cos(ta + 2.4) * 6, ey + Math.sin(ta + 2.4) * 6); c.lineTo(ex + Math.cos(ta - 2.4) * 6, ey + Math.sin(ta - 2.4) * 6); c.fill();
-  c.restore();
-}
-// Шеврон перед верхом телефона в покое — куда прыгнет, если просто тапнуть.
+// Шеврон перед верхом телефона в покое — когда превью выключено, это единственная подсказка направления.
 function drawAimMark(c, x, y, a, now){
-  const d = 36 + Math.sin(now * 0.006) * 3, ex = x + Math.cos(a) * d, ey = y + Math.sin(a) * d;
-  c.save(); c.translate(ex, ey); c.rotate(a); c.strokeStyle = 'rgba(255,255,255,0.75)'; c.lineWidth = 3; c.lineCap = 'round';
+  const d = 38 + Math.sin(now * 0.006) * 3, ex = x + Math.cos(a) * d, ey = y + Math.sin(a) * d;
+  c.save(); c.translate(ex, ey); c.rotate(a); c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 3; c.lineCap = 'round';
   c.beginPath(); c.moveTo(-5, -7); c.lineTo(3, 0); c.lineTo(-5, 7); c.stroke(); c.restore();
 }
-// Превью: точки той же симуляции, призрак в точке остановки. Зелёный — рука поймает, красный — мышеловка.
-function drawPreview(c){
-  const p = G.preview, mode = G.save.dev.preview; if (!p || mode === 'off') return;
-  const pts = p.pts, end = mode === 'first' && p.firstHit >= 0 ? p.firstHit : pts.length;
-  const color = p.end.status === 'win' ? col.good : p.end.status === 'lose' && p.end.cause === 'trap' ? col.bad : '#ffffff';
-  c.fillStyle = color;
-  for (let i = 4; i < end - 1; i += 4){ c.globalAlpha = 0.9 - 0.45 * i / pts.length; c.beginPath(); c.arc(pts[i], pts[i + 1], 2.2, 0, 7); c.fill(); }
-  c.globalAlpha = 1;
-  if (mode === 'full' || p.firstHit < 0) drawPhone(c, p.end.x, p.end.y, p.end.a, { ghost: true, color });
+// Превью: линия той же симуляции, бегущий пунктир к точке остановки, звёздочки ударов, призрак со значком исхода.
+// Зелёный — рука поймает, красный — мышеловка или сядет, белый — просто остановится. В покое — бледно.
+function drawPreview(c, now){
+  const p = G.preview, mode = G.save.dev.preview; if (!p || mode === 'off' || G.ending) return;
+  const pts = p.pts, end = mode === 'first' && p.firstHit >= 0 ? p.firstHit : pts.length, e = p.end;
+  const win = e.status === 'win', bad = e.status === 'lose', color = win ? col.good : bad ? col.bad : '#ffffff';
+  const aiming = !!G.aim, lk = aiming ? Math.max(0, 1 - (now - G.aim.lockAt) / 300) : 0;
+  c.save(); c.globalAlpha = aiming ? 1 : 0.38; c.lineJoin = 'round'; c.lineCap = 'round';
+  c.beginPath(); let started = false;
+  for (let i = 0; i < end - 1; i += 2){
+    if (Math.hypot(pts[i] - pts[0], pts[i + 1] - pts[1]) < 22) continue;     // от края телефона, не из-под него
+    if (!started){ c.moveTo(pts[i], pts[i + 1]); started = true; } else c.lineTo(pts[i], pts[i + 1]);
+  }
+  if (started){
+    c.strokeStyle = 'rgba(0,0,0,0.5)'; c.lineWidth = 7 + 4 * lk; c.stroke();
+    c.setLineDash([9, 7]); c.lineDashOffset = -now * 0.06; c.strokeStyle = color; c.lineWidth = 3.4 + 3 * lk; c.stroke(); c.setLineDash([]);
+  }
+  const showAll = mode === 'full';
+  for (let i = 0; i < p.hits.length; i += 2){ if (!showAll && i > 0) break; drawBurst(c, p.hits[i], p.hits[i + 1], 7, '#ffffff'); }
+  if (showAll || p.firstHit < 0){
+    drawPhone(c, e.x, e.y, e.a, { ghost: true, color });
+    const bx = e.x, by = e.y - 30;
+    if (win || bad){
+      c.fillStyle = color; c.beginPath(); c.arc(bx, by, 11 + 2 * lk, 0, 7); c.fill();
+      c.fillStyle = '#10141a'; c.font = '900 14px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(win ? '✓' : e.cause === 'trap' ? '✕' : '0%', bx, by + 1);
+    }
+  }
+  c.restore();
 }
-// Телефон сверху: корпус, светящийся экран с кнопкой «ответить», камера у верхнего края (верх — по углу a).
-// o: buzz — дрожит и рисуются вибро-штрихи; dead — экран погас; cracked — трещины; ghost — пунктирный призрак превью.
+function drawBurst(c, x, y, r, color){
+  c.strokeStyle = color; c.lineWidth = 2; c.beginPath();
+  for (let i = 0; i < 4; i++){ const a = i * Math.PI / 4 + Math.PI / 8; c.moveTo(x + Math.cos(a) * r * 0.35, y + Math.sin(a) * r * 0.35); c.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+    c.moveTo(x - Math.cos(a) * r * 0.35, y - Math.sin(a) * r * 0.35); c.lineTo(x - Math.cos(a) * r, y - Math.sin(a) * r); }
+  c.stroke();
+}
+// Входящий вызов: волны от телефона в начале уровня — «это ты, и тебя ищут».
+function drawRing(c, x, y, now){
+  const t = (now - G.ringAt) / V.RING_MS; if (t < 0 || t >= 1 || G.aim) return;
+  c.save(); c.strokeStyle = '#8fd0ff'; c.lineWidth = 3;
+  for (let i = 0; i < 3; i++){ const p = (t * 3 + i / 3) % 1; c.globalAlpha = 0.7 * (1 - p) * (1 - t); c.beginPath(); c.arc(x, y, 26 + 46 * p, 0, 7); c.stroke(); }
+  c.restore();
+}
+// Телефон сверху: корпус, экран со стрелками «смахни, чтобы ответить» — они бегут к верху телефона, туда он и прыгнет.
+// o: buzz — дрожит, вибро-штрихи; lift 0..1 — подскок (тень отходит, телефон крупнее); squash — сплющен ударом;
+// ring — звонит (экран пульсирует); low — красная батарейка вместо стрелок; dead — экран погас; cracked — трещины;
+// ghost — пунктирный призрак превью; trail — полупрозрачный след на скорости; green — путь зелёный.
 function drawPhone(c, x, y, a, o){
-  const L = CFG.PHONE_L, W = CFG.PHONE_W;
+  const L = V.PHONE_DL, W = V.PHONE_DW;
   c.save(); c.translate(x, y); c.rotate(a);
+  if (o.trail){ c.globalAlpha = o.trail; c.fillStyle = col.screen; c.beginPath(); c.roundRect(-L / 2, -W / 2, L, W, 6); c.fill(); c.restore(); return; }
   if (o.ghost){
-    c.globalAlpha = 0.7; c.strokeStyle = o.color; c.fillStyle = o.color; c.lineWidth = 2; c.setLineDash([4, 3]);
+    c.globalAlpha = 0.85; c.strokeStyle = o.color; c.fillStyle = o.color; c.lineWidth = 2; c.setLineDash([4, 3]);
     c.beginPath(); c.roundRect(-L / 2, -W / 2, L, W, 6); c.stroke(); c.setLineDash([]);
-    c.beginPath(); c.moveTo(L / 2 + 5, 0); c.lineTo(L / 2 - 2, -5); c.lineTo(L / 2 - 2, 5); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(L / 2 + 6, 0); c.lineTo(L / 2 - 2, -6); c.lineTo(L / 2 - 2, 6); c.closePath(); c.fill();
     c.restore(); return;
   }
-  c.fillStyle = 'rgba(0,0,0,0.4)'; c.beginPath(); c.roundRect(-L / 2 + 2, -W / 2 + 3, L, W, 6); c.fill();
-  c.fillStyle = col.phone; c.beginPath(); c.roundRect(-L / 2, -W / 2, L, W, 6); c.fill();
-  c.fillStyle = o.dead ? '#08080a' : col.screen; c.beginPath(); c.roundRect(-L / 2 + 3, -W / 2 + 2.5, L - 6, W - 5, 4); c.fill();
-  if (!o.dead){
-    c.fillStyle = 'rgba(255,255,255,0.55)'; c.fillRect(L / 2 - 15, -6, 3, 12);        // «часы» у верха экрана
-    const pulse = o.buzz ? 1 + 0.25 * Math.sin(o.now * 0.02) : 1;
-    c.fillStyle = '#3fbf5f'; c.beginPath(); c.arc(-L / 2 + 10, 0, 3.6 * pulse, 0, 7); c.fill();   // кнопка «ответить»
-  } else { c.strokeStyle = '#ff5d5d'; c.lineWidth = 1.5; c.strokeRect(-5, -3.5, 10, 7); }
-  c.fillStyle = '#000'; c.beginPath(); c.arc(L / 2 - 5, 0, 1.8, 0, 7); c.fill();
+  const lift = o.lift || 0, sq = o.squash || 0;
+  const dx = 2 + 7 * lift, dy = 3 + 8 * lift, ca = Math.cos(a), sa = Math.sin(a);   // тень — в мировых координатах, вниз-вправо
+  c.fillStyle = 'rgba(0,0,0,' + (0.42 - 0.14 * lift).toFixed(2) + ')'; c.beginPath(); c.roundRect(-L / 2 + dx * ca + dy * sa, -W / 2 - dx * sa + dy * ca, L, W, 7); c.fill();
+  const up = 1 + 0.13 * lift; c.scale(up * (1 - 0.16 * sq + 0.08 * lift), up * (1 + 0.1 * sq - 0.04 * lift));
+  c.fillStyle = col.phone; c.beginPath(); c.roundRect(-L / 2, -W / 2, L, W, 7); c.fill();
+  if (o.dead){ c.fillStyle = '#08080a'; c.beginPath(); c.roundRect(-L / 2 + 3, -W / 2 + 2.5, L - 6, W - 5, 4); c.fill(); }
+  else {
+    const glow = o.ring ? 0.5 + 0.5 * Math.sin(o.now * 0.025) : 0;
+    const sg = c.createLinearGradient(-L / 2, 0, L / 2, 0); sg.addColorStop(0, col.screen2); sg.addColorStop(1, col.screen);
+    c.fillStyle = sg; c.beginPath(); c.roundRect(-L / 2 + 3, -W / 2 + 2.5, L - 6, W - 5, 4); c.fill();
+    if (glow){ c.fillStyle = 'rgba(255,255,255,' + (0.35 * glow * o.ring).toFixed(2) + ')'; c.fill(); }
+    if (o.low && Math.floor(o.now / 250) % 2 === 0){
+      c.strokeStyle = '#ff4d4d'; c.lineWidth = 2; c.strokeRect(-7, -5, 13, 10); c.fillStyle = '#ff4d4d'; c.fillRect(6, -2, 2, 4); c.fillRect(-5, -3, 3, 6);
+    } else {
+      c.strokeStyle = o.green ? '#1f7a35' : '#0d3a66'; c.lineWidth = 2.4; c.lineCap = 'round'; c.lineJoin = 'round';
+      for (let i = 0; i < 3; i++){                                   // «смахни вверх»: волна яркости бежит к верху
+        const xx = -8 + i * 7, al = 0.3 + 0.7 * Math.max(0, Math.sin(o.now * 0.009 - i * 1.1));
+        c.globalAlpha = al; c.beginPath(); c.moveTo(xx - 3, -5); c.lineTo(xx + 2, 0); c.lineTo(xx - 3, 5); c.stroke();
+      }
+      c.globalAlpha = 1;
+    }
+    c.fillStyle = '#3fbf5f'; c.beginPath(); c.arc(-L / 2 + 8, 0, 3.4 * (o.buzz ? 1 + 0.25 * Math.sin(o.now * 0.02) : 1), 0, 7); c.fill();   // кнопка «ответить» внизу
+  }
+  c.fillStyle = '#000'; c.beginPath(); c.roundRect(L / 2 - 7, -4, 3, 8, 1.5); c.fill();                   // вырез камеры — верх
   if (o.cracked){ c.strokeStyle = 'rgba(255,255,255,0.9)'; c.lineWidth = 1;
     c.beginPath(); c.moveTo(2, -1); c.lineTo(12, -9); c.moveTo(2, -1); c.lineTo(-9, -8); c.moveTo(2, -1); c.lineTo(-6, 9); c.moveTo(2, -1); c.lineTo(14, 7); c.stroke(); }
   if (o.buzz){
@@ -1131,7 +1498,7 @@ function drawPhone(c, x, y, a, o){
 }
 // Рука хозяина снизу, пальцы вверх (под диван); close 0..1 — раскрыта / сжата. Рукав уходит за край экрана.
 function drawHand(c, x, y, close){
-  c.save(); c.translate(x, y);
+  c.save(); c.translate(x, y); c.scale(1.15, 1.15);
   c.fillStyle = col.skin2; c.beginPath(); c.roundRect(-14, 8, 28, 230, 12); c.fill();
   c.fillStyle = col.sleeve; c.beginPath(); c.roundRect(-19, 66, 38, 220, 10); c.fill();
   c.fillStyle = col.skin; c.beginPath(); c.ellipse(0, 6, 19, 17, 0, 0, 7); c.fill();
@@ -1142,56 +1509,106 @@ function drawHand(c, x, y, close){
 }
 const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 const lerp = (a, b, t) => a + (b - a) * t;
-// Поза руки: в покое шарит по проёму, на победе — тянется к телефону, сжимает и утаскивает вниз.
+// Поза руки: в покое шарит по проёму; путь зелёный — ждёт в точке, куда прилетишь, с раскрытой ладонью;
+// телефон летит к ней — тянется навстречу; победа — хватает и утаскивает вниз.
 function handPose(now){
-  const L = G.s.L, g0 = L.goal[0], g1 = L.goal[1], amp = Math.max(0, (g1 - g0) / 2 - 26), t = now / 1000;
-  const ix = (g0 + g1) / 2 + Math.sin(t * CFG.VIEW.HAND_SWAY) * amp, iy = FH + 2 + Math.sin(t * 2.6) * 5;
-  if (G.hand.mode !== 'grab'){ G.handX = ix; G.handY = iy; return { x: ix, y: iy, close: 0.15 + 0.15 * Math.sin(t * 5), carry: false }; }
-  const p = Math.min(1, (now - G.hand.t0) / CFG.VIEW.GRAB_MS), tx = G.s.x, ty = G.s.y + 22;
-  if (p < 0.3){ const e = ease(p / 0.3); return { x: lerp(G.hand.fx, tx, e), y: lerp(G.hand.fy, ty, e), close: 0, carry: false }; }
-  if (p < 0.42) return { x: tx, y: ty, close: (p - 0.3) / 0.12, carry: true };
-  return { x: tx, y: ty + ease((p - 0.42) / 0.58) * 230, close: 1, carry: true };
+  const s = G.s, L = s.L, g0 = L.goal[0], g1 = L.goal[1], amp = Math.max(0, (g1 - g0) / 2 - 26), t = now / 1000, h = G.hand;
+  if (h.mode === 'grab'){
+    const p = Math.min(1, (now - h.t0) / V.GRAB_MS), tx = s.x, ty = s.y + 24;
+    if (p < 0.3){ const e = ease(p / 0.3); return { x: lerp(h.fx, tx, e), y: lerp(h.fy, ty, e), close: 0, carry: false }; }
+    if (p < 0.42) return { x: tx, y: ty, close: (p - 0.3) / 0.12, carry: true };
+    return { x: tx, y: ty + ease((p - 0.42) / 0.58) * 240, close: 1, carry: true };
+  }
+  let tx = (g0 + g1) / 2 + Math.sin(t * V.HAND_SWAY) * amp, ty = FH + 2 + Math.sin(t * 2.6) * 5, close = 0.15 + 0.15 * Math.sin(t * 5);
+  const p = G.preview, waiting = G.aim && p && p.end.status === 'win', coming = s.status === 'move' && G.flight && G.flight.status === 'win';
+  if (waiting || coming){
+    const ex = coming ? s.x : p.end.x;
+    tx = Math.max(g0 + 20, Math.min(g1 - 20, ex)); ty = FH - (coming && G.slow ? 26 : 8) + Math.sin(t * 9) * 2; close = 0;
+  }
+  const dt = h.last ? Math.min(0.1, Math.max(0, now - h.last) / 1000) : 0; h.last = now;
+  const kk = 1 - Math.exp(-dt * 9);
+  G.handX += (tx - G.handX) * kk; G.handY += (ty - G.handY) * kk; h.cs += (close - h.cs) * kk;
+  return { x: G.handX, y: G.handY, close: h.cs, carry: false };
 }
-// Частицы и надписи: позиция — функция абсолютного возраста (§4).
-function drawFx(c, now){
-  G.fx = G.fx.filter(f => now - f.born < f.life);
+// Частицы и надписи: позиция — функция абсолютного возраста (§4). under — слой под темнотой (лужицы сока).
+function drawFx(c, now, under){
+  if (under) G.fx = G.fx.filter(f => now - f.born < f.life);
   for (const f of G.fx){
+    if ((f.k === 'drip') !== under || f.k === 'fly' || f.k === 'tap') continue;
     const age = (now - f.born) / 1000, p = (now - f.born) / f.life;
-    if (f.k === 'dust'){ c.globalAlpha = 0.5 * (1 - p); c.fillStyle = col.dust; c.beginPath(); c.arc(f.x + f.vx * age, f.y + f.vy * age, 2.5 + 5 * p, 0, 7); c.fill(); }
-    else if (f.k === 'spark'){ c.globalAlpha = 1 - p; c.strokeStyle = col.coin; c.lineWidth = 2; const x = f.x + f.vx * age, y = f.y + f.vy * age;
+    if (f.k === 'drip'){ c.globalAlpha = 0.6 * (1 - p); c.fillStyle = col.juice; c.beginPath(); c.arc(f.x, f.y, f.r, 0, 7); c.fill(); }
+    else if (f.k === 'dust'){ c.globalAlpha = 0.5 * (1 - p); c.fillStyle = col.dust; c.beginPath(); c.arc(f.x + f.vx * age, f.y + f.vy * age, 2.5 + 5 * p, 0, 7); c.fill(); }
+    else if (f.k === 'speck'){ c.globalAlpha = 0.7 * (1 - p); c.fillStyle = '#d8c39a'; c.beginPath(); c.arc(f.x + f.vx * age, f.y + f.vy * age - 10 * Math.sin(p * Math.PI), 1.6, 0, 7); c.fill(); }
+    else if (f.k === 'spark'){ c.globalAlpha = 1 - p; c.strokeStyle = col.coin; c.lineWidth = 2.2; const x = f.x + f.vx * age, y = f.y + f.vy * age;
       c.beginPath(); c.moveTo(x, y); c.lineTo(x - f.vx * 0.06, y - f.vy * 0.06); c.stroke(); }
-    else if (f.k === 'ring'){ c.globalAlpha = 0.55 * (1 - p); c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(f.x, f.y, 12 + 28 * p, 0, 7); c.stroke(); }
-    else if (f.k === 'label'){ c.globalAlpha = Math.min(1, 2 * (1 - p)); c.font = '700 15px system-ui, sans-serif'; c.textAlign = 'center';
-      c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,0.7)'; c.strokeText(f.text, f.x, f.y - 24 * p); c.fillStyle = f.color; c.fillText(f.text, f.x, f.y - 24 * p); }
+    else if (f.k === 'fiber'){ c.globalAlpha = 1 - p; c.strokeStyle = '#a9b8db'; c.lineWidth = 1.5; const x = f.x + f.vx * age, y = f.y + f.vy * age;
+      c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(f.a + p * 4) * 5, y + Math.sin(f.a + p * 4) * 5); c.stroke(); }
+    else if (f.k === 'streak'){ c.globalAlpha = 0.8 * (1 - p); c.strokeStyle = '#fffbe8'; c.lineWidth = 2; const x = f.x + f.vx * age * 2, y = f.y + f.vy * age * 2;
+      c.beginPath(); c.moveTo(x, y); c.lineTo(x - f.vx * 0.15, y - f.vy * 0.15); c.stroke(); }
+    else if (f.k === 'splash'){ c.globalAlpha = 1 - p; c.fillStyle = col.juice; c.beginPath(); c.arc(f.x + f.vx * age * 1.4, f.y + f.vy * age * 1.4 - 14 * Math.sin(p * Math.PI), 2.8 * (1 - p * 0.5), 0, 7); c.fill(); }
+    else if (f.k === 'star'){ c.globalAlpha = 1 - p; drawBurst(c, f.x, f.y, f.r * (0.6 + 0.6 * p), '#fff6d8'); }
+    else if (f.k === 'ring'){ c.globalAlpha = 0.6 * (1 - p); c.strokeStyle = '#fff'; c.lineWidth = 2.5; c.beginPath(); c.arc(f.x, f.y, 14 + 34 * p, 0, 7); c.stroke(); }
+    else if (f.k === 'glow'){ c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.6 * (1 - p);
+      const rg = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, 140); rg.addColorStop(0, 'rgba(255,220,150,0.9)'); rg.addColorStop(1, 'rgba(255,220,150,0)');
+      c.fillStyle = rg; c.fillRect(f.x - 140, f.y - 140, 280, 280); c.restore(); }
+    else if (f.k === 'label'){
+      const pop = p < 0.12 ? 0.6 + 0.4 * (p / 0.12) * 1.25 : 1, sz = f.size * pop;
+      c.globalAlpha = Math.min(1, 2.5 * (1 - p)); c.font = '800 ' + sz.toFixed(1) + 'px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      c.lineWidth = 3.5; c.strokeStyle = 'rgba(0,0,0,0.75)'; c.strokeText(f.text, f.x, f.y - 26 * p); c.fillStyle = f.color; c.fillText(f.text, f.x, f.y - 26 * p);
+    }
+  }
+  c.globalAlpha = 1;
+}
+// Под пальцем: кольцо и стрелка поворота — сторона экрана сразу связана с направлением. Экранные пиксели.
+function drawTouch(c, now){
+  const t = G.touch; if (!t) return;
+  const held = Math.min(1, (now - t.t0) / 500), r = (30 + 6 * held) * DPR, col2 = G.aim && G.aim.green ? col.good : '#ffffff';
+  c.save(); c.globalAlpha = 0.55; c.strokeStyle = col2; c.lineWidth = 3 * DPR; c.beginPath(); c.arc(t.x, t.y, r, 0, 7); c.stroke();
+  c.globalAlpha = 0.9; drawSpinArrow(c, t.x, t.y - r - 26 * DPR, t.dir, 13 * DPR, col2); c.restore();
+}
+function drawScreenFx(c, now){
+  for (const f of G.fx){
+    const p = (now - f.born) / f.life; if (p < 0 || p >= 1) continue;
+    if (f.k === 'tap'){ c.globalAlpha = 0.5 * (1 - p); c.strokeStyle = '#fff'; c.lineWidth = 2 * DPR; c.beginPath(); c.arc(f.sx, f.sy, (30 + 30 * p) * DPR, 0, 7); c.stroke(); }
+    else if (f.k === 'fly'){
+      const e = ease(p), x = lerp(f.sx, f.tx, e), y = lerp(f.sy, f.ty, e) - Math.sin(p * Math.PI) * 60 * DPR, r = CFG.COIN_R * G.mat.k * (1 - 0.4 * p);
+      c.globalAlpha = 1; c.fillStyle = col.coin; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.strokeStyle = '#b8861f'; c.lineWidth = 2 * DPR; c.stroke();
+    }
   }
   c.globalAlpha = 1;
 }
 
-// --- цикл: rAF + watchdog setInterval; безопасно, потому что время абсолютное (§4) ---
+// --- цикл: rAF + watchdog setInterval; безопасно, потому что время абсолютное (§4). Кадр под try/catch:
+// одно исключение не должно останавливать игру навсегда (урок «обучение зависает»). ---
 let lastFrame = 0;
-function frame(){ const now = clock(); lastFrame = now; update(now); if (!G.paused) render(now); requestAnimationFrame(frame); }
-setInterval(() => { const now = clock(); if (now - lastFrame > 120){ update(now); if (!G.paused) render(now); } }, 40);
+function tick(now){
+  try { update(now); if (!G.paused) render(now); }
+  catch (e){ if (!G.errLogged){ G.errLogged = true; console.error(e); log('event', 'error', e && e.message); } }
+}
+function frame(){ const now = clock(); lastFrame = now; tick(now); requestAnimationFrame(frame); }
+setInterval(() => { const now = clock(); if (now - lastFrame > 120) tick(now); }, 40);
 
-// --- дебаг-хук (§6): состояние, любой экран, выстрел под углом, солвер, прогон времени ---
+// --- дебаг-хук (§6): состояние, любой экран, выстрел под углом, удержание как пальцем, солвер, прогон времени ---
 window.PHONE = {
   G, CFG,
   state(){
     const s = G.s; if (!s) return { screen: G.screen };
     return { level: s.L.n, x: +s.x.toFixed(1), y: +s.y.toFixed(1), deg: Math.round(((s.a / D2R) % 360 + 360) % 360), battery: s.battery,
-      hops: s.hops, par: s.L.par, status: s.status, cause: s.cause, coins: s.got.filter(Boolean).length + '/' + s.got.length, screen: G.screen };
+      hops: s.hops, par: s.L.par, status: s.status, cause: s.cause, coins: s.got.filter(Boolean).length + '/' + s.got.length, screen: G.screen,
+      aim: G.aim ? { deg: Math.round(G.aim.ang / D2R), green: G.aim.green } : null, preview: G.preview ? G.preview.end.status : null };
   },
   play(n){ startLevel((n || 1) - 1); return this.state(); },
-  shoot(deg){                                    // мгновенный прицел и прыжок — для автопроверок
-    const s = G.s; if (s && s.status === 'idle' && !G.aim){ s.a = deg * D2R; G.preview = null; if (release(s)){ G.acc = 0; G.lastPhys = clock(); if (G.hintStage < 2){ G.hintStage = 2; setHint(); } } }
-    return this.state();
-  },
-  hold(dir, sec){ const s = G.s; if (s && s.status === 'idle'){ s.a += (dir < 0 ? -1 : 1) * spinAngle(sec); release(s); G.acc = 0; G.lastPhys = clock(); } return this.state(); },
+  shoot(deg){ const s = G.s; if (s && s.status === 'idle' && !G.aim){ s.a = deg * D2R; launch('hook'); } return this.state(); },   // мгновенный прицел и прыжок
+  hold(dir, sec){ const s = G.s; if (s && s.status === 'idle' && !G.aim){ s.a += (dir < 0 ? -1 : 1) * spinAngle(sec); launch('hook'); } return this.state(); },
+  // Как пальцем: зажать на sec секунд игрового времени через тот же updateAim (трещотка, липкость, «дзынь»), release — отпустить.
+  press(dir, sec, release){ beginAim(dir < 0 ? -1 : 1); if (sec) this.drive(sec); if (release !== false) endAim(false); return this.state(); },
+  release(){ endAim(false); return this.state(); },
   preview(deg){ const r = simulateHop(G.s, deg * D2R); return { x: +r.x.toFixed(1), y: +r.y.toFixed(1), status: r.status, cause: r.cause }; },
   solve(){ const r = G.s && solveFrom(G.s); return r && { hops: r.hops, deg: r.angles.map(a => Math.round(a / D2R)) }; },
   auto(){ const r = G.s && solveFrom(G.s); G.autoQ = r ? r.angles.slice() : []; G.autoAt = clock() + 300; return r && r.hops; },
   goto(screen){ goto(screen); return G.screen; },
   drive(sec){                                   // ручной прогон игрового времени: rAF заморожен в скрытой вкладке
-    for (let i = 0, n = Math.ceil(sec * 60); i < n; i++){ skew += 1000 / 60; update(clock()); }
+    for (let i = 0, n = Math.ceil(sec * 60); i < n; i++){ skew += 1000 / 60; update(clock()); }   // без рендера: его реальное время утекло бы в часы
     render(clock());
     return this.state();
   },
